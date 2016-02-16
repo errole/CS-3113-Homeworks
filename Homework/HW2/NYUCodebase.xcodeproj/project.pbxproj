@@ -21,6 +21,9 @@
 		6DEF23C21B96CC2600BCE792 /* Matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6DEF23BC1B96CC2600BCE792 /* Matrix.cpp */; };
 		6DEF23C31B96CC2600BCE792 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6DEF23BE1B96CC2600BCE792 /* ShaderProgram.cpp */; };
 		6DEF23C41B96CC2600BCE792 /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 6DEF23C01B96CC2600BCE792 /* vertex.glsl */; };
+		D3702A1B1C737A330091DE62 /* bar.png in Resources */ = {isa = PBXBuildFile; fileRef = D3702A181C737A330091DE62 /* bar.png */; };
+		D3702A1C1C737A330091DE62 /* LeftPlayerWin.png in Resources */ = {isa = PBXBuildFile; fileRef = D3702A191C737A330091DE62 /* LeftPlayerWin.png */; };
+		D3702A1D1C737A330091DE62 /* RightPlayerWin.png in Resources */ = {isa = PBXBuildFile; fileRef = D3702A1A1C737A330091DE62 /* RightPlayerWin.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +50,9 @@
 		6DEF23BE1B96CC2600BCE792 /* ShaderProgram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderProgram.cpp; sourceTree = "<group>"; };
 		6DEF23BF1B96CC2600BCE792 /* ShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderProgram.h; sourceTree = "<group>"; };
 		6DEF23C01B96CC2600BCE792 /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
+		D3702A181C737A330091DE62 /* bar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bar.png; sourceTree = "<group>"; };
+		D3702A191C737A330091DE62 /* LeftPlayerWin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LeftPlayerWin.png; sourceTree = "<group>"; };
+		D3702A1A1C737A330091DE62 /* RightPlayerWin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = RightPlayerWin.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,6 +150,9 @@
 		6D5A86E119AE5CAA0066C1FD /* Code */ = {
 			isa = PBXGroup;
 			children = (
+				D3702A181C737A330091DE62 /* bar.png */,
+				D3702A191C737A330091DE62 /* LeftPlayerWin.png */,
+				D3702A1A1C737A330091DE62 /* RightPlayerWin.png */,
 				6DEF23BB1B96CC2600BCE792 /* fragment.glsl */,
 				6DE9D2F01BA6AB8C002D599C /* fragment_textured.glsl */,
 				6DC707691BA7273500225B7D /* vertex_textured.glsl */,
@@ -211,12 +220,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				6D5A86B819AE5C710066C1FD /* InfoPlist.strings in Resources */,
+				D3702A1C1C737A330091DE62 /* LeftPlayerWin.png in Resources */,
+				D3702A1D1C737A330091DE62 /* RightPlayerWin.png in Resources */,
 				6DEF23C11B96CC2600BCE792 /* fragment.glsl in Resources */,
 				6DE9D2F11BA6AB8C002D599C /* fragment_textured.glsl in Resources */,
 				6D5A86C619AE5C710066C1FD /* Images.xcassets in Resources */,
 				6D5A86BE19AE5C710066C1FD /* Credits.rtf in Resources */,
 				6DEF23C41B96CC2600BCE792 /* vertex.glsl in Resources */,
 				6DC7076A1BA7273500225B7D /* vertex_textured.glsl in Resources */,
+				D3702A1B1C737A330091DE62 /* bar.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

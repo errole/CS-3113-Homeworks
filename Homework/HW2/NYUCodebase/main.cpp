@@ -96,10 +96,10 @@ int main(int argc, char *argv[])
     glUseProgram(program.programID);
     SDL_Event event;
     
-    GLuint BarTexture = LoadTexture("/Users/errolelbasan/Documents/Codes/X Code/CS3113/HW2/NYUCodebase/bar.png");
-    GLuint PLeftWinsTexture = LoadTexture("/Users/errolelbasan/Documents/Codes/X Code/CS3113/HW2/NYUCodebase/LeftPlayerWin.png");
-    GLuint PRightWinsTexture = LoadTexture("/Users/errolelbasan/Documents/Codes/X Code/CS3113/HW2/NYUCodebase/RightPlayerWin.png");
-    
+    GLuint BarTexture = LoadTexture("bar.png");
+    GLuint PLeftWinsTexture = LoadTexture("LeftPlayerWin.png");
+    GLuint PRightWinsTexture = LoadTexture("RightPlayerWin.png");
+
     float lastFrameTicks = 0.0f;
     
     Entity paddle1(-5.4f,0.0f,.1f,.7f,10);

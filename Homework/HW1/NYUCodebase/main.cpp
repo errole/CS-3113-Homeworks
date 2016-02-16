@@ -59,10 +59,10 @@ int main(int argc, char *argv[])
     
     glViewport(0, 0, 640, 360);
     ShaderProgram program(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
-    GLuint ShipTexture = LoadTexture("/Users/errolelbasan/Documents/Codes/X Code/CS3113/HW1/NYUCodebase/Ship.png");
-    GLuint EvilShipTexture = LoadTexture("/Users/errolelbasan/Documents/Codes/X Code/CS3113/HW1/NYUCodebase/EvilShip.png");
-    GLuint laserRed02Texture = LoadTexture("/Users/errolelbasan/Documents/Codes/X Code/CS3113/HW1/NYUCodebase/laserRed02.png");
-    GLuint explosionTexture = LoadTexture("/Users/errolelbasan/Documents/Codes/X Code/CS3113/HW1/NYUCodebase/explosion.png");
+    GLuint ShipTexture = LoadTexture("Ship.png");
+    GLuint EvilShipTexture = LoadTexture("EvilShip.png");
+    GLuint laserRed02Texture = LoadTexture("laserRed02.png");
+    GLuint explosionTexture = LoadTexture("explosion.png");
     
     Matrix projectionMatrix;
     Matrix modelMatrix;
@@ -122,7 +122,6 @@ int main(int argc, char *argv[])
             float textureCoords2[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0,0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
             DrawSprite( program, explosionTexture, vertices2, textureCoords2, 0, 0, 0);
         }
-        
         variable += elapsed;
         SDL_GL_SwapWindow(displayWindow);
     }
