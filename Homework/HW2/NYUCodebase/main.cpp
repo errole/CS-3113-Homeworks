@@ -66,8 +66,8 @@ public:
     }
 };
 
-Entity paddle1(-5.4f,0.0f,.1f,.7f,10);
-Entity paddle2(5.4f,0.0f,.1f,.7f,10);
+Entity paddle1(-5.4f,0.0f,.1f,.7f,5);
+Entity paddle2(5.4f,0.0f,.1f,.7f,5);
 Entity ball(0.0f,0.0f,.1f,.1f,5.0f);
 Entity botmBoarder(0.0f,-2.9f,5.55f,.1f);
 Entity topBoarder(0.0f,2.9f,5.55f,.1f);
@@ -145,13 +145,13 @@ void Update(){
     
     //Check for ball collision
     if(ball.isCollision(topBoarder)){
-        ball.angle = 180-ball.angle;
+        ball.angle = -ball.angle;
     }else if(ball.isCollision(botmBoarder)){
-        ball.angle = 180-ball.angle;
+        ball.angle = -ball.angle;
     }else if(ball.isCollision(paddle1)){
-        ball.angle = 180-ball.angle;
+        ball.angle = (360-atan((ball.y-paddle1.y)/(ball.x-paddle1.x))*180/3.14);
     }else if(ball.isCollision(paddle2)){
-        ball.angle = paddle2.y-ball.y;
+        ball.angle = (180-atan((paddle2.y-ball.y)/(paddle2.x-ball.x))*180/3.14);
     }
     ball.x += cos(ball.angle*3.14/180) * elapsed * ball.speed;
     ball.y += sin(ball.angle*3.14/180) * elapsed * ball.speed;
