@@ -13,6 +13,20 @@
 #define RESOURCE_FOLDER "NYUCodebase.app/Contents/Resources/"
 #endif
 
+
+
+SDL_Window* displayWindow;
+SDL_Event event;
+const Uint8 *keys = SDL_GetKeyboardState(NULL);
+bool done = false;
+float lastFrameTicks = 0.0f;
+float elapsed = 0.0;
+
+
+Matrix projectionMatrix;
+Matrix modelMatrix;
+Matrix viewMatrix;
+
 class Entity {
 public:
     float x;
@@ -25,12 +39,12 @@ public:
     float direction_x = 0;
     float direction_y = 0;
     
-    Entity(float x, float y, float width, float height, float speed = 0):x(x),y(y),width(width),height(height) ,speed(speed) {};
+    Entity(float x, float y, float width, float height, float speed = 0, float angle = 0):x(x),y(y),width(width),height(height) ,speed(speed), angle(angle) {};
     
     void DrawSprite(ShaderProgram& program, GLuint& texture, float textureCoord[]) {
         
         float vertices[] = {x-width, y-height,x+width, y-height,x+width, y+height,
-                            x-width, y-height,x+width, y+height,x-width, y+height};
+            x-width, y-height,x+width, y+height,x-width, y+height};
         Matrix modelMatrix;
         //modelMatrix.Translate(0.0, 0.0, 0.0);
         //modelMatrix.Rotate();
@@ -54,9 +68,12 @@ public:
     }
 };
 
-SDL_Window* displayWindow;
-void Setup(){
-}
+Entity paddle1(-5.4f,0.0f,.1f,.7f,10);
+Entity paddle2(5.4f,0.0f,.1f,.7f,10);
+Entity ball(0.0f,0.0f,.1f,.1f,5.0f);
+Entity botmBoarder(0.0f,-2.9f,5.55f,.1f);
+Entity topBoarder(0.0f,2.9f,5.55f,.1f);
+Entity PLeftWins(0.0f,0.0f,2.0f,1.0f);
 
 GLuint LoadTexture(const char *image_path) {
     SDL_Surface *surface = IMG_Load(image_path);
@@ -71,8 +88,7 @@ GLuint LoadTexture(const char *image_path) {
     return textureID;
 }
 
-int main(int argc, char *argv[])
-{
+void Setup(){
     SDL_Init(SDL_INIT_VIDEO);
     displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
     SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
@@ -87,102 +103,100 @@ int main(int argc, char *argv[])
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glBlendFunc (GL_SRC_ALPHA, GL_ONE);
     glClearColor(.0f,.0f,.3f,.0f);
-    
-    Matrix projectionMatrix;
-    Matrix modelMatrix;
-    Matrix viewMatrix;
     projectionMatrix.setOrthoProjection(-5.55, 5.55, -3.0f, 3.0f, -1.0f, 1.0f);
-    ShaderProgram program(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
-    glUseProgram(program.programID);
-    SDL_Event event;
+}
+
+void ProcessEvents(){
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
+            done = true;
+        }
+    }
+}
+
+void Update(){
     
+    float ticks = (float)SDL_GetTicks()/1000.0f;
+    float elapsed = ticks - lastFrameTicks;
+    lastFrameTicks = ticks;
+    
+    if(keys[SDL_SCANCODE_W]) {
+        paddle1.y += elapsed * paddle1.speed;
+    }else if(keys[SDL_SCANCODE_S]){
+        paddle1.y += elapsed * -paddle1.speed;
+    }
+    if(keys[SDL_SCANCODE_UP]){
+        paddle2.y += elapsed * paddle2.speed;
+    }else if(keys[SDL_SCANCODE_DOWN]){
+        paddle2.y += elapsed * -paddle2.speed;
+    }
+    
+    if(paddle1.isCollsion(topBoarder)){
+        paddle1.y += elapsed * -paddle1.speed;
+    }else if(paddle1.isCollsion(botmBoarder)){
+        paddle1.y += elapsed * paddle1.speed;
+    }
+    
+    
+    
+    if(paddle2.isCollsion(topBoarder)){
+        paddle2.y += elapsed * -paddle2.speed;
+    }else if(paddle2.isCollsion(botmBoarder)){
+        paddle2.y += elapsed * paddle2.speed;
+    }
+    
+    
+    
+    if(ball.isCollsion(topBoarder)){
+        ball.angle = 180-ball.angle;
+    }else if(ball.isCollsion(botmBoarder)){
+        ball.angle = 180-ball.angle;
+    }else if(ball.isCollsion(paddle1)){
+        ball.angle = 180-ball.angle;
+    }else if(ball.isCollsion(paddle2)){
+        ball.angle = 180-ball.angle;
+    }
+    ball.x += cos(ball.angle*3.14/180) * elapsed * ball.speed;
+    ball.y += sin(ball.angle*3.14/180) * elapsed * ball.speed;
+    
+}
+
+void Render(ShaderProgram program){
+    glClear(GL_COLOR_BUFFER_BIT);
     GLuint BarTexture = LoadTexture("bar.png");
     GLuint PLeftWinsTexture = LoadTexture("LeftPlayerWin.png");
     GLuint PRightWinsTexture = LoadTexture("RightPlayerWin.png");
+    float textureCoords00[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0,0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
+    
+    botmBoarder.DrawSprite( program, BarTexture, textureCoords00);
+    topBoarder.DrawSprite( program, BarTexture, textureCoords00);
+    paddle1.DrawSprite( program, BarTexture, textureCoords00);
+    paddle2.DrawSprite( program, BarTexture, textureCoords00);
+    ball.DrawSprite( program, BarTexture, textureCoords00);
+    
+    if(!(ball.x-ball.width > -5.55)){
+        PLeftWins.DrawSprite( program, PRightWinsTexture, textureCoords00);
+    }else if(!(ball.x+ball.width < 5.55)){
+        PLeftWins.DrawSprite( program, PLeftWinsTexture, textureCoords00);
+    }
+    SDL_GL_SwapWindow(displayWindow);
+}
 
-    float lastFrameTicks = 0.0f;
+
+int main(int argc, char *argv[])
+{
+    Setup();
     
-    Entity paddle1(-5.4f,0.0f,.1f,.7f,10);
-    Entity paddle2(5.4f,0.0f,.1f,.7f,10);
-    Entity ball(0.0f,0.0f,.1f,.1f,1);
-    Entity botmBoarder(0.0f,-2.9f,5.55f,.1f);
-    Entity topBoarder(0.0f,2.9f,5.55f,.1f);
-    Entity PLeftWins(0.0f,0.0f,2.0f,1.0f);
-    ball.angle = 0;
+    ShaderProgram program(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
+    glUseProgram(program.programID);
+    program.setModelMatrix(modelMatrix);
+    program.setProjectionMatrix(projectionMatrix);
+    program.setViewMatrix(viewMatrix);
     
-    bool done = false;
     while (!done) {
-        
-        float ticks = (float)SDL_GetTicks()/1000.0f;
-        float elapsed = ticks - lastFrameTicks;
-        lastFrameTicks = ticks;
-        
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
-                done = true;
-            } else if(event.type == SDL_KEYDOWN) {
-                if(event.key.keysym.scancode == SDL_SCANCODE_W) {
-                    paddle1.y += elapsed * paddle1.speed;
-                }else if(event.key.keysym.scancode == SDL_SCANCODE_S){
-                    paddle1.y += elapsed * -paddle1.speed;
-                }
-                if(event.key.keysym.scancode == SDL_SCANCODE_UP){
-                    paddle2.y += elapsed * paddle2.speed;
-                }else if(event.key.keysym.scancode == SDL_SCANCODE_DOWN){
-                    paddle2.y += elapsed * -paddle2.speed;
-                }
-            }
-        }
-        
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        program.setModelMatrix(modelMatrix);
-        program.setProjectionMatrix(projectionMatrix);
-        program.setViewMatrix(viewMatrix);
-
-        float textureCoords00[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0,0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
-        ball.DrawSprite( program, BarTexture, textureCoords00);
-        
-        botmBoarder.DrawSprite( program, BarTexture, textureCoords00);
-        
-        topBoarder.DrawSprite( program, BarTexture, textureCoords00);
-        
-        if(paddle1.isCollsion(topBoarder)){
-            paddle1.y += elapsed * -paddle1.speed;
-        }else if(paddle1.isCollsion(botmBoarder)){
-            paddle1.y += elapsed * paddle1.speed;
-        }
-        paddle1.DrawSprite( program, BarTexture, textureCoords00);
-        
-        
-        if(paddle2.isCollsion(topBoarder)){
-            paddle2.y += elapsed * -paddle2.speed;
-        }else if(paddle2.isCollsion(botmBoarder)){
-            paddle2.y += elapsed * paddle2.speed;
-        }
-        paddle2.DrawSprite( program, BarTexture, textureCoords00);
-        
-        
-        if(ball.isCollsion(topBoarder)){
-            ball.angle = 180-ball.angle;
-        }else if(ball.isCollsion(botmBoarder)){
-            ball.angle = 180-ball.angle;
-        }else if(ball.isCollsion(paddle1)){
-            ball.angle = 180-ball.angle;
-        }else if(ball.isCollsion(paddle2)){
-            ball.angle = 180-ball.angle;
-        }
-        ball.x += cos(ball.angle*3.14/180) * elapsed * ball.speed;
-        ball.y += sin(ball.angle*3.14/180) * elapsed * ball.speed;
-        ball.DrawSprite( program, BarTexture, textureCoords00);
-        
-        if(!(ball.x-ball.width > -5.55)){
-            PLeftWins.DrawSprite( program, PRightWinsTexture, textureCoords00);
-        }else if(!(ball.x+ball.width < 5.55)){
-            PLeftWins.DrawSprite( program, PLeftWinsTexture, textureCoords00);
-        }
-        
-        SDL_GL_SwapWindow(displayWindow);
+        ProcessEvents();
+        Update();
+        Render(program);
     }
     
     SDL_Quit();
