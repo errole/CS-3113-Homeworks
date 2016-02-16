@@ -13,15 +13,13 @@
 #define RESOURCE_FOLDER "NYUCodebase.app/Contents/Resources/"
 #endif
 
-
-
+//Global Setup Parameters
 SDL_Window* displayWindow;
 SDL_Event event;
 const Uint8 *keys = SDL_GetKeyboardState(NULL);
 bool done = false;
 float lastFrameTicks = 0.0f;
 float elapsed = 0.0;
-
 
 Matrix projectionMatrix;
 Matrix modelMatrix;
@@ -58,7 +56,7 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
     
-    bool isCollsion(Entity other){
+    bool isCollision(Entity other){
         if(y-height > other.y+other.height || y+height < other.y-other.height ||
            x-width > other.x+other.width || x+width < other.x-other.width){
             return 0;
@@ -98,7 +96,6 @@ void Setup(){
 #endif
     
     glViewport(0, 0, 640, 360);
-    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glBlendFunc (GL_SRC_ALPHA, GL_ONE);
@@ -115,11 +112,12 @@ void ProcessEvents(){
 }
 
 void Update(){
-    
+    //Update timer for smoother movements
     float ticks = (float)SDL_GetTicks()/1000.0f;
     float elapsed = ticks - lastFrameTicks;
     lastFrameTicks = ticks;
     
+    //Get input for movement of paddles
     if(keys[SDL_SCANCODE_W]) {
         paddle1.y += elapsed * paddle1.speed;
     }else if(keys[SDL_SCANCODE_S]){
@@ -131,30 +129,29 @@ void Update(){
         paddle2.y += elapsed * -paddle2.speed;
     }
     
-    if(paddle1.isCollsion(topBoarder)){
+    //Check for paddle1 collision
+    if(paddle1.isCollision(topBoarder)){
         paddle1.y += elapsed * -paddle1.speed;
-    }else if(paddle1.isCollsion(botmBoarder)){
+    }else if(paddle1.isCollision(botmBoarder)){
         paddle1.y += elapsed * paddle1.speed;
     }
     
-    
-    
-    if(paddle2.isCollsion(topBoarder)){
+    //Check for paddle2 collision
+    if(paddle2.isCollision(topBoarder)){
         paddle2.y += elapsed * -paddle2.speed;
-    }else if(paddle2.isCollsion(botmBoarder)){
+    }else if(paddle2.isCollision(botmBoarder)){
         paddle2.y += elapsed * paddle2.speed;
     }
     
-    
-    
-    if(ball.isCollsion(topBoarder)){
+    //Check for ball collision
+    if(ball.isCollision(topBoarder)){
         ball.angle = 180-ball.angle;
-    }else if(ball.isCollsion(botmBoarder)){
+    }else if(ball.isCollision(botmBoarder)){
         ball.angle = 180-ball.angle;
-    }else if(ball.isCollsion(paddle1)){
+    }else if(ball.isCollision(paddle1)){
         ball.angle = 180-ball.angle;
-    }else if(ball.isCollsion(paddle2)){
-        ball.angle = 180-ball.angle;
+    }else if(ball.isCollision(paddle2)){
+        ball.angle = paddle2.y-ball.y;
     }
     ball.x += cos(ball.angle*3.14/180) * elapsed * ball.speed;
     ball.y += sin(ball.angle*3.14/180) * elapsed * ball.speed;
@@ -179,6 +176,7 @@ void Render(ShaderProgram program){
     }else if(!(ball.x+ball.width < 5.55)){
         PLeftWins.DrawSprite( program, PLeftWinsTexture, textureCoords00);
     }
+    
     SDL_GL_SwapWindow(displayWindow);
 }
 
