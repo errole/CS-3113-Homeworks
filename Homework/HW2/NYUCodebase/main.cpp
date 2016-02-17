@@ -20,10 +20,15 @@ const Uint8 *keys = SDL_GetKeyboardState(NULL);
 bool done = false;
 float lastFrameTicks = 0.0f;
 float elapsed = 0.0;
+GLuint BarTexture=0;
+GLuint PLeftWinsTexture=0;
+GLuint PRightWinsTexture=0;
+
 
 Matrix projectionMatrix;
 Matrix modelMatrix;
 Matrix viewMatrix;
+
 
 class Entity {
 public:
@@ -37,6 +42,7 @@ public:
     float direction_x = 0;
     float direction_y = 0;
     
+    Entity() {};
     Entity(float x, float y, float width, float height, float speed = 0, float angle = 0):x(x),y(y),width(width),height(height) ,speed(speed), angle(angle) {};
     
     void DrawSprite(ShaderProgram& program, GLuint& texture, float textureCoord[]) {
@@ -66,12 +72,13 @@ public:
     }
 };
 
-Entity paddle1(-5.4f,0.0f,.1f,.7f,5);
-Entity paddle2(5.4f,0.0f,.1f,.7f,5);
-Entity ball(0.0f,0.0f,.1f,.1f,5.0f);
-Entity botmBoarder(0.0f,-2.9f,5.55f,.1f);
-Entity topBoarder(0.0f,2.9f,5.55f,.1f);
-Entity PLeftWins(0.0f,0.0f,2.0f,1.0f);
+
+Entity paddle1;
+Entity paddle2;
+Entity ball;
+Entity botmBoarder;
+Entity topBoarder;
+Entity PLeftWins;
 
 GLuint LoadTexture(const char *image_path) {
     SDL_Surface *surface = IMG_Load(image_path);
@@ -160,9 +167,6 @@ void Update(){
 
 void Render(ShaderProgram program){
     glClear(GL_COLOR_BUFFER_BIT);
-    GLuint BarTexture = LoadTexture("bar.png");
-    GLuint PLeftWinsTexture = LoadTexture("LeftPlayerWin.png");
-    GLuint PRightWinsTexture = LoadTexture("RightPlayerWin.png");
     float textureCoords00[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0,0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
     
     botmBoarder.DrawSprite( program, BarTexture, textureCoords00);
@@ -184,12 +188,23 @@ void Render(ShaderProgram program){
 int main(int argc, char *argv[])
 {
     Setup();
-    
+    BarTexture = LoadTexture("bar.png");
+    PLeftWinsTexture = LoadTexture("LeftPlayerWin.png");
+    PRightWinsTexture = LoadTexture("RightPlayerWin.png");
     ShaderProgram program(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
     glUseProgram(program.programID);
     program.setModelMatrix(modelMatrix);
     program.setProjectionMatrix(projectionMatrix);
     program.setViewMatrix(viewMatrix);
+    
+    
+    
+    paddle1 = Entity(-5.4f,0.0f,.1f,.7f,5);
+    paddle2 = Entity(5.4f,0.0f,.1f,.7f,5);
+    ball = Entity(0.0f,0.0f,.1f,.1f,5.0f);
+    botmBoarder = Entity(0.0f,-2.9f,5.55f,.1f);
+    topBoarder = Entity(0.0f,2.9f,5.55f,.1f);
+    PLeftWins = Entity(0.0f,0.0f,2.0f,1.0f);
     
     while (!done) {
         ProcessEvents();
