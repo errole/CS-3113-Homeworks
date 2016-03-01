@@ -6,9 +6,9 @@
 //  Copyright © 2016 Ivan Safrin. All rights reserved.
 //
 
-#include "Utilities.hpp"
+#include "Utilities.h"
 
-void DrawText(ShaderProgram *program, GLuint fontTexture, std::string text, float size, float spacing) {
+void DrawText(ShaderProgram *program, GLuint fontTexture, std::string text, float size, float spacing, float adjust[3]) {
     float texture_size = 1.0/16.0f;
     vector<float> vertexData;
     vector<float> texCoordData;
@@ -31,6 +31,10 @@ void DrawText(ShaderProgram *program, GLuint fontTexture, std::string text, floa
             texture_x + texture_size, texture_y,
             texture_x, texture_y + texture_size,
         }); }
+    Matrix modelMatrix;
+    modelMatrix.Translate(adjust[0], adjust[1], adjust[2]);
+    program->setModelMatrix(modelMatrix);
+    
     glUseProgram(program->programID);
     glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertexData.data());
     glEnableVertexAttribArray(program->positionAttribute);
@@ -54,3 +58,5 @@ GLuint LoadTexture(const char *image_path) {
     SDL_FreeSurface(surface);
     return textureID;
 }
+
+

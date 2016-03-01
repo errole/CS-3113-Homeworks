@@ -5,8 +5,8 @@
 //  Created by Errol Elbasan on 3/1/16.
 //
 
-#ifndef Entity_hpp
-#define Entity_hpp
+#ifndef Entity_h
+#define Entity_h
 
 #include <stdio.h>
 #include "ShaderProgram.h"

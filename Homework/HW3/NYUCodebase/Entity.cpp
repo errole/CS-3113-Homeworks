@@ -5,7 +5,7 @@
 //  Created by Errol Elbasan on 3/1/16.
 //
 
-#include "Entity.hpp"
+#include "Entity.h"
     
 void Entity::DrawSprite(ShaderProgram& program, GLuint& texture, float textureCoord[]) {
         
@@ -30,3 +30,4 @@ bool Entity::isCollision(Entity other){
         return 1;
     }
 }
+

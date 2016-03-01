@@ -2,14 +2,15 @@
 #include <GL/glew.h>
 #endif
 
+#include <stdlib.h>
 #include <vector>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_image.h>
 #include "Matrix.h"
 #include "ShaderProgram.h"
-#include "Entity.hpp"
-#include "Utilities.hpp"
+#include "Entity.h"
+#include "Utilities.h"
 
 using namespace std;
 
@@ -29,9 +30,9 @@ float elapsed = 0.0;
 GLuint barTexture=0;
 GLuint spriteSheet=0;
 GLuint fontTexture=0;
-enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL };
-int state = STATE_GAME_LEVEL;
-//int state = STATE_MAIN_MENU;
+GLuint backGroundTexture=0;
+enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_WIN, STATE_LOSE};
+int state = STATE_MAIN_MENU;
 
 Matrix projectionMatrix;
 Matrix modelMatrix;
@@ -39,11 +40,13 @@ Matrix viewMatrix;
 
 vector<Entity> entities;
 vector<Entity> bullets;
+vector<Entity> enemyBullets;
 Entity humanShip;
 Entity leftBorder;
 Entity rightBorder;
-
-
+Entity backGround;
+Entity lossLine;
+Entity enemyBulletReachLine;
 
 void Setup(){
     SDL_Init(SDL_INIT_VIDEO);
@@ -61,13 +64,19 @@ void Setup(){
     glClearColor(.0f,.0f,.3f,.0f);
     projectionMatrix.setOrthoProjection(-5.55, 5.55, -3.0f, 3.0f, -1.0f, 1.0f);
     
-    leftBorder = Entity(-5.4f,0.0f,.2f,3.0f);
-    rightBorder = Entity(5.4f,0.0f,.2f,3.0f);
+    leftBorder = Entity(-5.45f,0.0f,.1f,3.0f);
+    rightBorder = Entity(5.45f,0.0f,.1f,3.0f);
     humanShip = Entity(0.0f,-2.8f,.2f,.2f,5);
+    
+    lossLine = Entity(0.0f,-2.3f,5.55f,.05f);
+    enemyBulletReachLine = Entity(0.0f,-3.0f,5.55f,.05f);
+    
+    backGround = Entity(0.0f, 0.0f,5.55f,3.0f);
+    
     for(int i=0;i<12;i++){
         for(int j=0;j<5;j++){
             Entity myEntity;
-            myEntity = Entity(-5.0+i*.5,2.8-j*.5,.2,.2,1);
+            myEntity = Entity(-5.0+i*.6,2.8-j*.6,.3,.3,1);
             entities.push_back(myEntity);
         }
     }
@@ -84,10 +93,6 @@ void ProcessEvents(){
             }
         }
     }
-}
-
-void UpdateMainMenu(){
-    
 }
 
 void UpdateGameLevel(){
@@ -110,11 +115,29 @@ void UpdateGameLevel(){
         humanShip.x += elapsed * humanShip.speed_x;
     }
     
+    //Random Bullet movement from UFOs
+    if(enemyBullets.size()<=3){
+        int randNum = rand() % entities.size();
+        Entity newBullet(entities[randNum].x,entities[randNum].y,.1,.1,0,-5);
+        enemyBullets.push_back(newBullet);
+    }
+    
+    
     //Bullet Movements
     for(int i=0;i<bullets.size();i++){
         bullets[i].y += elapsed * bullets[i].speed_y;
     }
+    for(int i=0;i<enemyBullets.size();i++){
+        enemyBullets[i].y += elapsed * enemyBullets[i].speed_y;
+    }
     
+    //Remove Bullets
+    for(int i=0;i<enemyBullets.size();i++){
+        if(enemyBulletReachLine.isCollision(enemyBullets[i])){
+            enemyBullets.erase(enemyBullets.begin()+i);
+        }
+    }
+        
     //UFO movements
     for(int i=0;i<entities.size();i++){
         if(rightBorder.isCollision(entities[i])){
@@ -131,7 +154,7 @@ void UpdateGameLevel(){
         entities[i].x += elapsed * entities[i].speed_x;
     }
     
-    //Cross Check UFOs and Bullets
+    //Collison Checks for Bullets
     for(int i=0;i<entities.size();i++){
         for(int j=0;j<bullets.size();j++){
             if(bullets[j].isCollision(entities[i])){
@@ -140,51 +163,97 @@ void UpdateGameLevel(){
             }
         }
     }
-}
-
-void RenderMainMenu(ShaderProgram program){
-    glClear(GL_COLOR_BUFFER_BIT);
-    DrawText(&program, fontTexture, "SPACE INVADERS!", .5, -.1);
     
-    SDL_GL_SwapWindow(displayWindow);
+    //Collison Checks for Bullets
+    for(int j=0;j<enemyBullets.size();j++){
+        if(enemyBullets[j].isCollision(humanShip)){
+            state = STATE_MAIN_MENU;
+        }
+    }
+    
+    //Win Check
+    if(entities.size()==0){
+        state = STATE_MAIN_MENU;
+    }
+    for(int i=0;i<entities.size();i++){
+        if(entities[i].isCollision(lossLine)){
+            state = STATE_MAIN_MENU;
+        }
+    }
 }
 
 void RenderGameLevel(ShaderProgram program){
     glClear(GL_COLOR_BUFFER_BIT);
-    float textureCoords00[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
- 
+    float textureCoord[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+                            0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
+    backGround.DrawSprite( program, backGroundTexture, textureCoord);
+
     float u=434.0f/1024.0f;
     float v=234.0f/1024.0f;
     float width= 91.0f/1024.0f;
     float height= 91.0f/1024.0f;
-    float ufoGreenUV[] = { u+width, v, u, v, u, v+height, u+width, v, u, v+height, u+width, v+height};
-    
-    u=346.0f/1024.0f;
-    v=75.0f/1024.0f;
+    float ufoGreenUV[] = { u, v+height, u+width, v+height, u+width, v,
+                            u, v+height, u+width, v, u, v};
+   
+    u=325.0f/1024.0f;
+    v=0.0f/1024.0f;
     width= 98.0f/1024.0f;
     height= 75.0f/1024.0f;
-    float playerShip3Red[] = {u+width, v, u, v, u, v+height, u+width, v, u, v+height, u+width, v+height};
-    
-    humanShip.DrawSprite( program, spriteSheet, playerShip3Red);
-    rightBorder.DrawSprite( program, barTexture, textureCoords00);
-    leftBorder.DrawSprite( program, barTexture, textureCoords00);
+    float playerShip[] = {u, v+height, u+width, v+height, u+width, v,
+                            u, v+height, u+width, v, u, v};
+
+    u=856.0f/1024.0f;
+    v=57.0f/1024.0f;
+    width= 9.0f/1024.0f;
+    height= 37.0f/1024.0f;
+    float lasers[] = {u, v+height, u+width, v+height, u+width, v,
+                        u, v+height, u+width, v, u, v};
+
+    humanShip.DrawSprite( program, spriteSheet, playerShip);
+    rightBorder.DrawSprite( program, barTexture, textureCoord);
+    leftBorder.DrawSprite( program, barTexture, textureCoord);
+    enemyBulletReachLine.DrawSprite( program, barTexture, textureCoord);
+    lossLine.DrawSprite( program, barTexture, textureCoord);
     for(int i=0;i<entities.size();i++){
         entities[i].DrawSprite( program, spriteSheet, ufoGreenUV);
     }
     for(int i=0;i<bullets.size();i++){
-        bullets[i].DrawSprite( program, spriteSheet, ufoGreenUV);
+        bullets[i].DrawSprite( program, spriteSheet, lasers);
+    }
+    for(int i=0;i<enemyBullets.size();i++){
+        enemyBullets[i].DrawSprite( program, spriteSheet, lasers);
     }
     
     SDL_GL_SwapWindow(displayWindow);
 }
 
+void UpdateMainMenu(){
+    if(keys[SDL_SCANCODE_SPACE]) {
+        state= STATE_GAME_LEVEL;
+    }
+}
+
+void RenderMainMenu(ShaderProgram program){
+    glClear(GL_COLOR_BUFFER_BIT);
+    float textureCoord[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
+    backGround.DrawSprite( program, backGroundTexture, textureCoord);
+    
+    float adjust[] = {-3.33,0,0};
+    DrawText(&program, fontTexture, "SPACE INVADERS!", 1, -.5, adjust);
+    adjust[0]= -2;
+    adjust[1] = -.5;
+    DrawText(&program, fontTexture, "Press any Key to Start", .5, -.3, adjust);
+    SDL_GL_SwapWindow(displayWindow);
+}
 
 int main(int argc, char *argv[])
 {
     Setup();
-    barTexture = LoadTexture("bar.png");
+    
     spriteSheet = LoadTexture("sheet.png");
+    barTexture = LoadTexture("bar.png");
     fontTexture = LoadTexture("font1.png");
+    backGroundTexture = LoadTexture("purple.png");
     ShaderProgram program(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
     glUseProgram(program.programID);
     program.setModelMatrix(modelMatrix);
@@ -202,9 +271,10 @@ int main(int argc, char *argv[])
                 UpdateGameLevel();
                 break;
         }
+        
         switch(state) {
             case STATE_MAIN_MENU:
-                RenderMainMenu(program );
+                RenderMainMenu(program);
                 break;
             case STATE_GAME_LEVEL:
                 RenderGameLevel(program);
