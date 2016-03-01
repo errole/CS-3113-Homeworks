@@ -167,17 +167,17 @@ void UpdateGameLevel(){
     //Collison Checks for Bullets
     for(int j=0;j<enemyBullets.size();j++){
         if(enemyBullets[j].isCollision(humanShip)){
-            state = STATE_MAIN_MENU;
+            state = STATE_LOSE;
         }
     }
     
     //Win Check
     if(entities.size()==0){
-        state = STATE_MAIN_MENU;
+        state = STATE_WIN;
     }
     for(int i=0;i<entities.size();i++){
         if(entities[i].isCollision(lossLine)){
-            state = STATE_MAIN_MENU;
+            state = STATE_LOSE;
         }
     }
 }
@@ -233,6 +233,18 @@ void UpdateMainMenu(){
     }
 }
 
+void UpdateWin(){
+    if(keys[SDL_SCANCODE_SPACE]) {
+        state= STATE_GAME_LEVEL;
+    }
+}
+
+void UpdateLose(){
+    if(keys[SDL_SCANCODE_SPACE]) {
+        state= STATE_GAME_LEVEL;
+    }
+}
+
 void RenderMainMenu(ShaderProgram program){
     glClear(GL_COLOR_BUFFER_BIT);
     float textureCoord[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
@@ -240,6 +252,32 @@ void RenderMainMenu(ShaderProgram program){
     
     float adjust[] = {-3.33,0,0};
     DrawText(&program, fontTexture, "SPACE INVADERS!", 1, -.5, adjust);
+    adjust[0]= -2;
+    adjust[1] = -.5;
+    DrawText(&program, fontTexture, "Press any Key to Start", .5, -.3, adjust);
+    SDL_GL_SwapWindow(displayWindow);
+}
+
+void RenderWin(ShaderProgram program){
+    glClear(GL_COLOR_BUFFER_BIT);
+    float textureCoord[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
+    backGround.DrawSprite( program, backGroundTexture, textureCoord);
+    
+    float adjust[] = {-2.0,0,0};
+    DrawText(&program, fontTexture, "You WIN!", 1, -.5, adjust);
+    adjust[0]= -2.0;
+    adjust[1] = -.5;
+    DrawText(&program, fontTexture, "Press any Key to Start", .5, -.3, adjust);
+    SDL_GL_SwapWindow(displayWindow);
+}
+
+void RenderLose(ShaderProgram program){
+    glClear(GL_COLOR_BUFFER_BIT);
+    float textureCoord[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
+    backGround.DrawSprite( program, backGroundTexture, textureCoord);
+    
+    float adjust[] = {-3.33,0,0};
+    DrawText(&program, fontTexture, "You Lose Earthling!", 1, -.6, adjust);
     adjust[0]= -2;
     adjust[1] = -.5;
     DrawText(&program, fontTexture, "Press any Key to Start", .5, -.3, adjust);
@@ -270,6 +308,12 @@ int main(int argc, char *argv[])
             case STATE_GAME_LEVEL:
                 UpdateGameLevel();
                 break;
+            case STATE_WIN:
+                UpdateWin();
+                break;
+            case STATE_LOSE:
+                UpdateLose();
+                break;
         }
         
         switch(state) {
@@ -278,6 +322,12 @@ int main(int argc, char *argv[])
                 break;
             case STATE_GAME_LEVEL:
                 RenderGameLevel(program);
+                break;
+            case STATE_WIN:
+                RenderWin(program);
+                break;
+            case STATE_LOSE:
+                RenderLose(program);
                 break;
         }
     }
