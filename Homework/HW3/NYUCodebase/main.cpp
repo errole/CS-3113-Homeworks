@@ -1,12 +1,16 @@
 #ifdef _WINDOWS
 #include <GL/glew.h>
 #endif
+
 #include <vector>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_image.h>
 #include "Matrix.h"
 #include "ShaderProgram.h"
+#include "Entity.hpp"
+#include "Utilities.hpp"
+
 using namespace std;
 
 #ifdef _WINDOWS
@@ -22,55 +26,16 @@ const Uint8 *keys = SDL_GetKeyboardState(NULL);
 bool done = false;
 float lastFrameTicks = 0.0f;
 float elapsed = 0.0;
-GLuint humanShipTexture=0;
-GLuint ufoTexture=0;
 GLuint barTexture=0;
 GLuint spriteSheet=0;
+GLuint fontTexture=0;
+enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL };
+int state = STATE_GAME_LEVEL;
+//int state = STATE_MAIN_MENU;
 
 Matrix projectionMatrix;
 Matrix modelMatrix;
 Matrix viewMatrix;
-
-class Entity {
-public:
-    float x;
-    float y;
-    float angle;
-    int textureID;
-    float width;
-    float height;
-    float direction_x = 0;
-    float direction_y = 0;
-    float speed_x = 0;
-    float speed_y = 0;
-    
-    Entity() {};
-    Entity(float x, float y, float width, float height, float speed_x = 0, float speed_y = 0, float angle = 0):x(x), y(y), width(width), height(height), speed_x(speed_x), speed_y(speed_y), angle(angle) {};
-    
-    void DrawSprite(ShaderProgram& program, GLuint& texture, float textureCoord[]) {
-        
-        float vertices[] = {x-width, y-height,x+width, y-height,x+width, y+height,
-            x-width, y-height,x+width, y+height,x-width, y+height};
-        Matrix modelMatrix;
-        
-        program.setModelMatrix(modelMatrix);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glVertexAttribPointer(program.positionAttribute, 2, GL_FLOAT, false, 0, vertices);
-        glEnableVertexAttribArray(program.positionAttribute);
-        glVertexAttribPointer(program.texCoordAttribute, 2, GL_FLOAT, false, 0, textureCoord);
-        glEnableVertexAttribArray(program.texCoordAttribute);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-    }
-    
-    bool isCollision(Entity other){
-        if(y-height > other.y+other.height || y+height < other.y-other.height ||
-           x-width > other.x+other.width || x+width < other.x-other.width){
-            return 0;
-        }else{
-            return 1;
-        }
-    }
-};
 
 vector<Entity> entities;
 vector<Entity> bullets;
@@ -78,18 +43,7 @@ Entity humanShip;
 Entity leftBorder;
 Entity rightBorder;
 
-GLuint LoadTexture(const char *image_path) {
-    SDL_Surface *surface = IMG_Load(image_path);
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, surface->pixels);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    SDL_FreeSurface(surface);
-    return textureID;
-}
+
 
 void Setup(){
     SDL_Init(SDL_INIT_VIDEO);
@@ -132,7 +86,11 @@ void ProcessEvents(){
     }
 }
 
-void Update(){
+void UpdateMainMenu(){
+    
+}
+
+void UpdateGameLevel(){
     //Update timer for smoother movements
     float ticks = (float)SDL_GetTicks()/1000.0f;
     float elapsed = ticks - lastFrameTicks;
@@ -184,18 +142,37 @@ void Update(){
     }
 }
 
-void Render(ShaderProgram program){
+void RenderMainMenu(ShaderProgram program){
+    glClear(GL_COLOR_BUFFER_BIT);
+    DrawText(&program, fontTexture, "SPACE INVADERS!", .5, -.1);
+    
+    SDL_GL_SwapWindow(displayWindow);
+}
+
+void RenderGameLevel(ShaderProgram program){
     glClear(GL_COLOR_BUFFER_BIT);
     float textureCoords00[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
+ 
+    float u=434.0f/1024.0f;
+    float v=234.0f/1024.0f;
+    float width= 91.0f/1024.0f;
+    float height= 91.0f/1024.0f;
+    float ufoGreenUV[] = { u+width, v, u, v, u, v+height, u+width, v, u, v+height, u+width, v+height};
     
-    humanShip.DrawSprite( program, humanShipTexture, textureCoords00);
+    u=346.0f/1024.0f;
+    v=75.0f/1024.0f;
+    width= 98.0f/1024.0f;
+    height= 75.0f/1024.0f;
+    float playerShip3Red[] = {u+width, v, u, v, u, v+height, u+width, v, u, v+height, u+width, v+height};
+    
+    humanShip.DrawSprite( program, spriteSheet, playerShip3Red);
     rightBorder.DrawSprite( program, barTexture, textureCoords00);
     leftBorder.DrawSprite( program, barTexture, textureCoords00);
     for(int i=0;i<entities.size();i++){
-        entities[i].DrawSprite( program, ufoTexture, textureCoords00);
+        entities[i].DrawSprite( program, spriteSheet, ufoGreenUV);
     }
     for(int i=0;i<bullets.size();i++){
-        bullets[i].DrawSprite( program, ufoTexture, textureCoords00);
+        bullets[i].DrawSprite( program, spriteSheet, ufoGreenUV);
     }
     
     SDL_GL_SwapWindow(displayWindow);
@@ -205,10 +182,9 @@ void Render(ShaderProgram program){
 int main(int argc, char *argv[])
 {
     Setup();
-    humanShipTexture = LoadTexture("humanShip.png");
-    ufoTexture = LoadTexture("ufo.png");
     barTexture = LoadTexture("bar.png");
     spriteSheet = LoadTexture("sheet.png");
+    fontTexture = LoadTexture("font1.png");
     ShaderProgram program(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
     glUseProgram(program.programID);
     program.setModelMatrix(modelMatrix);
@@ -217,10 +193,24 @@ int main(int argc, char *argv[])
     
     while (!done) {
         ProcessEvents();
-        Update();
-        Render(program);
+        
+        switch(state) {
+            case STATE_MAIN_MENU:
+                UpdateMainMenu();
+                break;
+            case STATE_GAME_LEVEL:
+                UpdateGameLevel();
+                break;
+        }
+        switch(state) {
+            case STATE_MAIN_MENU:
+                RenderMainMenu(program );
+                break;
+            case STATE_GAME_LEVEL:
+                RenderGameLevel(program);
+                break;
+        }
     }
-    
     SDL_Quit();
     return 0;
 }
