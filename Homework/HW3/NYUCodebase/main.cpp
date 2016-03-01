@@ -48,6 +48,22 @@ Entity backGround;
 Entity lossLine;
 Entity enemyBulletReachLine;
 
+void reset(){
+    humanShip = Entity(0.0f,-2.8f,.2f,.2f,5);
+    
+    entities.clear();
+    for(int i=0;i<12;i++){
+        for(int j=0;j<5;j++){
+            Entity myEntity;
+            myEntity = Entity(-5.0+i*.6,2.8-j*.6,.3,.3,1);
+            entities.push_back(myEntity);
+        }
+    }
+    enemyBullets.clear();
+    bullets.clear();
+}
+
+
 void Setup(){
     SDL_Init(SDL_INIT_VIDEO);
     displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
@@ -66,20 +82,12 @@ void Setup(){
     
     leftBorder = Entity(-5.45f,0.0f,.1f,3.0f);
     rightBorder = Entity(5.45f,0.0f,.1f,3.0f);
-    humanShip = Entity(0.0f,-2.8f,.2f,.2f,5);
-    
     lossLine = Entity(0.0f,-2.3f,5.55f,.05f);
     enemyBulletReachLine = Entity(0.0f,-3.0f,5.55f,.05f);
     
     backGround = Entity(0.0f, 0.0f,5.55f,3.0f);
     
-    for(int i=0;i<12;i++){
-        for(int j=0;j<5;j++){
-            Entity myEntity;
-            myEntity = Entity(-5.0+i*.6,2.8-j*.6,.3,.3,1);
-            entities.push_back(myEntity);
-        }
-    }
+    reset();
 }
 
 void ProcessEvents(){
@@ -241,6 +249,7 @@ void UpdateWin(){
 
 void UpdateLose(){
     if(keys[SDL_SCANCODE_SPACE]) {
+        reset();
         state= STATE_GAME_LEVEL;
     }
 }
@@ -334,3 +343,6 @@ int main(int argc, char *argv[])
     SDL_Quit();
     return 0;
 }
+
+
+
