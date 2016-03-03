@@ -263,7 +263,7 @@ void RenderMainMenu(ShaderProgram program){
     DrawText(&program, fontTexture, "SPACE INVADERS!", 1, -.5, adjust);
     adjust[0]= -2;
     adjust[1] = -.5;
-    DrawText(&program, fontTexture, "Press any Key to Start", .5, -.3, adjust);
+    DrawText(&program, fontTexture, "Press Space to Start", .5, -.3, adjust);
     SDL_GL_SwapWindow(displayWindow);
 }
 
@@ -276,7 +276,7 @@ void RenderWin(ShaderProgram program){
     DrawText(&program, fontTexture, "You WIN!", 1, -.5, adjust);
     adjust[0]= -2.0;
     adjust[1] = -.5;
-    DrawText(&program, fontTexture, "Press any Key to Start", .5, -.3, adjust);
+    DrawText(&program, fontTexture, "Press Space to Start", .5, -.3, adjust);
     SDL_GL_SwapWindow(displayWindow);
 }
 
@@ -289,7 +289,7 @@ void RenderLose(ShaderProgram program){
     DrawText(&program, fontTexture, "You Lose Earthling!", 1, -.6, adjust);
     adjust[0]= -2;
     adjust[1] = -.5;
-    DrawText(&program, fontTexture, "Press any Key to Start", .5, -.3, adjust);
+    DrawText(&program, fontTexture, "Press Space to Start", .5, -.3, adjust);
     SDL_GL_SwapWindow(displayWindow);
 }
 
