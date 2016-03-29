@@ -6,6 +6,8 @@
 //  Copyright © 2016 Ivan Safrin. All rights reserved.
 //
 #pragma once
+
+#include "Entity.h"
 #ifdef _WINDOWS
 #include <GL/glew.h>
 #endif
@@ -24,15 +26,24 @@
 
 class SheetSprite {
 public:
-    SheetSprite(){};
-    SheetSprite(ShaderProgram* program, unsigned int textureID, float u, float v, float width, float height, float size) : program(program), textureID(textureID), u(u), v(v), width(width), height(height), size(size){};
-    void Draw();
+    SheetSprite();
+    SheetSprite(ShaderProgram* program, unsigned int textureID, int spriteCountX, int spriteCountY, int index, float size): program(program), textureID(textureID), spriteCountX(spriteCountX), spriteCountY(spriteCountY), index(index), size(size){
+        u = (float)(((int)index) % spriteCountX) / (float) spriteCountX;
+        v = (float)(((int)index) / spriteCountX) / (float) spriteCountY;
+        spriteWidth = 1.0/(float)spriteCountX;
+        spriteHeight = 1.0/(float)spriteCountY;
+    };
+    void Draw(float vertices[]);
     float size;
     unsigned int textureID;
+    float aspect;
+    int index;
+    int spriteCountX;
+    int spriteCountY;
     float u;
     float v;
-    float width;
-    float height;
+    float spriteWidth;
+    float spriteHeight;
     ShaderProgram* program;
     Matrix modelMatrix;
 };

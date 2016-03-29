@@ -12,18 +12,47 @@
 #include <stdio.h>
 #include "ShaderProgram.h"
 #include <math.h>
-#include "SheetSprite.h"
 
 #endif /* Entity_h*/
+
+class Entity;
+
+class SheetSprite {
+public:
+    SheetSprite();
+    SheetSprite(ShaderProgram* program, unsigned int textureID, int spriteCountX, int spriteCountY, int index, float size): program(program), textureID(textureID), spriteCountX(spriteCountX), spriteCountY(spriteCountY), index(index), size(size){
+        u = (float)(((int)index) % spriteCountX) / (float) spriteCountX;
+        v = (float)(((int)index) / spriteCountX) / (float) spriteCountY;
+        spriteWidth = 1.0/(float)spriteCountX;
+        spriteHeight = 1.0/(float)spriteCountY;
+    };
+    void Draw(float vertices[]);
+    float size;
+    unsigned int textureID;
+    float aspect;
+    int index;
+    int spriteCountX;
+    int spriteCountY;
+    float u;
+    float v;
+    float spriteWidth;
+    float spriteHeight;
+    ShaderProgram* program;
+    Matrix modelMatrix;
+};
 
 enum EntityType {ENTITY_PLAYER, ENTITY_ENEMY, ENTITY_COIN};
 
 class Entity {
 public:
+    Entity();
+    Entity(float x, float y, float width, float height): x(x), y(y), width(width), height(height) {};
+    
     void UpdateX(float FIXED_TIMESTEP);
     void UpdateY(float FIXED_TIMESTEP);
-    void Render(ShaderProgram *program, GLuint& texture, float textureCoord[]);
+    void Render();
     bool collidesWith(Entity *entity);
+    float lerp(float v0, float v1, float t);
     
     float x;
     float y;
@@ -45,7 +74,7 @@ public:
     
     bool isStatic;
     EntityType entityType;
-    SheetSprite sprite;
+    SheetSprite *sprite;
     
     bool collidedTop = false;
     bool collidedBottom = false;

@@ -45,7 +45,7 @@ Matrix viewMatrix;
 Map levelData;
 vector<Entity> mapEntities;
 vector<Entity> enemies;
-Entity player;
+Entity player(100,-350,10,10);
 
 
 void Setup(){
@@ -76,8 +76,8 @@ void Setup(){
             levelData.readEntityData(infile, player);
         }
     }
-    viewMatrix.Scale(.001,.001,0);
-    viewMatrix.Translate(-640,250,0);
+    viewMatrix.Scale(.01,.01,0);
+    viewMatrix.Translate(-300,200,0);
 }
 
 void ProcessEvents(ShaderProgram program){
@@ -92,22 +92,36 @@ void ProcessEvents(ShaderProgram program){
 void UpdateGameLevel(ShaderProgram program){
     player.collidedBottom = false;
     if(keys[SDL_SCANCODE_SPACE]){
-        player.UpdateY(FIXED_TIMESTEP);
+        player.acceleration_y = 1.5;
+        player.velocity_y = 2.2;
+        player.velocity_y += player.lerp(player.velocity_y, 0.0f, FIXED_TIMESTEP * player.friction_y);
+        player.velocity_y += player.acceleration_y * FIXED_TIMESTEP;
+        player.y += player.velocity_y * FIXED_TIMESTEP;
+        player.collidedBottom = false;
     }
     player.collidedRight = false;
     if(keys[SDL_SCANCODE_RIGHT]) {
-        player.UpdateX(FIXED_TIMESTEP);
+        player.acceleration_x = 0.9;
+        player.velocity_x = player.lerp(player.velocity_x, 0.0f, FIXED_TIMESTEP * player.friction_x);
+        player.velocity_x += player.acceleration_x * FIXED_TIMESTEP;
+        player.x += player.velocity_x * FIXED_TIMESTEP;
     }
     player.collidedLeft = false;
     if(keys[SDL_SCANCODE_LEFT]){
-        player.UpdateX(FIXED_TIMESTEP);
+        player.acceleration_x = -0.9;
+        player.velocity_x = player.lerp(player.velocity_x, 0.0f, FIXED_TIMESTEP * player.friction_x);
+        player.velocity_x += player.acceleration_x * FIXED_TIMESTEP;
+        player.x += player.velocity_x * FIXED_TIMESTEP;
     }
 }
 
 void RenderGameLevel(ShaderProgram program){
     glClear(GL_COLOR_BUFFER_BIT);
+    viewMatrix.identity();
+    viewMatrix.Translate(-player.x, -player.y, 0);
+    //program.setViewMatrix(viewMatrix);
     levelData.renderLevel(program, mapTexture, modelMatrix);
-    player.draw(&program, mapTexture, texCoords);
+    player.Render();
     SDL_GL_SwapWindow(displayWindow);
 }
 
@@ -115,12 +129,15 @@ int main(int argc, char *argv[])
 {
     Setup();
     mapTexture = LoadTexture("mapTexture.png");
-    SheetSprite mySprite = SheetSprite(program, mapTexture, 425.0f/1024.0f, 468.0f/1024.0f, 93.0f/1024.0f, 84.0f/1024.0f, 0.2);
     ShaderProgram program(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
     glUseProgram(program.programID);
     program.setModelMatrix(modelMatrix);
     program.setProjectionMatrix(projectionMatrix);
     program.setViewMatrix(viewMatrix);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    SheetSprite mySprite(&program, mapTexture,30,30,20, 10);
+    player.sprite= &mySprite;
     
     while (!done) {
         ProcessEvents(program);
@@ -138,6 +155,7 @@ int main(int argc, char *argv[])
         }
         
         UpdateGameLevel(program);
+        player.Render();
         RenderGameLevel(program);
     }
     

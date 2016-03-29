@@ -5,7 +5,7 @@
 //  Created by Errol Elbasan on 3/1/16.
 //  Copyright © 2016 Ivan Safrin. All rights reserved.
 //
-
+#pragma once
 #ifndef Utilities_h
 #define Utilities_h
 
@@ -23,20 +23,3 @@ using namespace std;
 void DrawText(ShaderProgram *program, GLuint fontTexture, std::string text, float size, float spacing, float adjust[3]);
 
 GLuint LoadTexture(const char *image_path);
-
-
-class SheetSprite {
-public:
-    void Draw();
-    float size;
-    GLuint textureID;
-    float u;
-    float v;
-    float width;
-    float height;
-    
-    SheetSprite();
-    SheetSprite(GLuint textureID, float u, float v, float width, float height, float size);
-};
-
-

@@ -22,12 +22,11 @@
 		6DEF23C31B96CC2600BCE792 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6DEF23BE1B96CC2600BCE792 /* ShaderProgram.cpp */; };
 		6DEF23C41B96CC2600BCE792 /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 6DEF23C01B96CC2600BCE792 /* vertex.glsl */; };
 		D301F8DD1CA9F3430077848D /* PlatformerMap.txt in Resources */ = {isa = PBXBuildFile; fileRef = D301F8DB1CA9F3430077848D /* PlatformerMap.txt */; };
-		D301F8DE1CA9F3430077848D /* mapTexture.png in Resources */ = {isa = PBXBuildFile; fileRef = D301F8DC1CA9F3430077848D /* mapTexture.png */; };
 		D301F8E11CAA3B260077848D /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D301F8DF1CAA3B260077848D /* Map.cpp */; };
-		D301F8E41CAA60410077848D /* SheetSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D301F8E21CAA60410077848D /* SheetSprite.cpp */; };
 		D3127D8F1C9261A800B3B03A /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3127D8E1C9261A800B3B03A /* SDL2_mixer.framework */; };
 		D36F41021C85E859009F70CC /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D36F41001C85E859009F70CC /* Entity.cpp */; };
 		D36F41051C85EC88009F70CC /* Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D36F41031C85EC88009F70CC /* Utilities.cpp */; };
+		D394D63D1CAADDC3000EDDF7 /* mapTexture.png in Resources */ = {isa = PBXBuildFile; fileRef = D394D63C1CAADDC3000EDDF7 /* mapTexture.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,16 +54,14 @@
 		6DEF23BF1B96CC2600BCE792 /* ShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderProgram.h; sourceTree = "<group>"; };
 		6DEF23C01B96CC2600BCE792 /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		D301F8DB1CA9F3430077848D /* PlatformerMap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PlatformerMap.txt; sourceTree = SOURCE_ROOT; };
-		D301F8DC1CA9F3430077848D /* mapTexture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mapTexture.png; sourceTree = SOURCE_ROOT; };
 		D301F8DF1CAA3B260077848D /* Map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Map.cpp; sourceTree = SOURCE_ROOT; };
 		D301F8E01CAA3B260077848D /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = SOURCE_ROOT; };
-		D301F8E21CAA60410077848D /* SheetSprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SheetSprite.cpp; sourceTree = SOURCE_ROOT; };
-		D301F8E31CAA60410077848D /* SheetSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SheetSprite.h; sourceTree = SOURCE_ROOT; };
 		D3127D8E1C9261A800B3B03A /* SDL2_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_mixer.framework; path = ../../../../../../../../Library/Frameworks/SDL2_mixer.framework; sourceTree = "<group>"; };
 		D36F41001C85E859009F70CC /* Entity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
 		D36F41011C85E859009F70CC /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
 		D36F41031C85EC88009F70CC /* Utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utilities.cpp; sourceTree = "<group>"; };
 		D36F41041C85EC88009F70CC /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
+		D394D63C1CAADDC3000EDDF7 /* mapTexture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mapTexture.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,8 +161,8 @@
 		6D5A86E119AE5CAA0066C1FD /* Code */ = {
 			isa = PBXGroup;
 			children = (
+				D394D63C1CAADDC3000EDDF7 /* mapTexture.png */,
 				D301F8DB1CA9F3430077848D /* PlatformerMap.txt */,
-				D301F8DC1CA9F3430077848D /* mapTexture.png */,
 				6DEF23BB1B96CC2600BCE792 /* fragment.glsl */,
 				6DE9D2F01BA6AB8C002D599C /* fragment_textured.glsl */,
 				6DC707691BA7273500225B7D /* vertex_textured.glsl */,
@@ -180,8 +177,6 @@
 				D36F41041C85EC88009F70CC /* Utilities.h */,
 				D301F8DF1CAA3B260077848D /* Map.cpp */,
 				D301F8E01CAA3B260077848D /* Map.h */,
-				D301F8E21CAA60410077848D /* SheetSprite.cpp */,
-				D301F8E31CAA60410077848D /* SheetSprite.h */,
 				6D5A86B919AE5C710066C1FD /* main.cpp */,
 			);
 			name = Code;
@@ -240,7 +235,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D301F8DE1CA9F3430077848D /* mapTexture.png in Resources */,
+				D394D63D1CAADDC3000EDDF7 /* mapTexture.png in Resources */,
 				6D5A86B819AE5C710066C1FD /* InfoPlist.strings in Resources */,
 				D301F8DD1CA9F3430077848D /* PlatformerMap.txt in Resources */,
 				6DEF23C11B96CC2600BCE792 /* fragment.glsl in Resources */,
@@ -261,7 +256,6 @@
 			files = (
 				D301F8E11CAA3B260077848D /* Map.cpp in Sources */,
 				D36F41021C85E859009F70CC /* Entity.cpp in Sources */,
-				D301F8E41CAA60410077848D /* SheetSprite.cpp in Sources */,
 				6DEF23C31B96CC2600BCE792 /* ShaderProgram.cpp in Sources */,
 				6DEF23C21B96CC2600BCE792 /* Matrix.cpp in Sources */,
 				6D5A86BA19AE5C710066C1FD /* main.cpp in Sources */,

@@ -30,11 +30,11 @@ class Map{
 public:
     //Map Data
     unsigned char** levelData;
-    float TILE_SIZE = 70;
+    float TILE_SIZE = 20;
     int mapWidth;
     int mapHeight;
-    int SPRITE_COUNT_X = 14;
-    int SPRITE_COUNT_Y = 7;
+    int SPRITE_COUNT_X = 30;
+    int SPRITE_COUNT_Y = 30;
 
     bool readHeader(std::ifstream &stream);
     bool readLayerData(std::ifstream &stream);

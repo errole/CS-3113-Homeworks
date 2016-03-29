@@ -8,24 +8,25 @@
 
 #include "SheetSprite.h"
 
-void SheetSprite::Draw() {
+void SheetSprite::Draw(float vertices[]) {
     glBindTexture(GL_TEXTURE_2D, textureID);
     GLfloat texCoords[] = {
-        u, v+height,
-        u+width, v,
+        u, v+spriteHeight,
+        u+spriteWidth, v,
         u, v,
-        u+width, v,
-        u, v+height,
-        u+width, v+height
+        u+spriteWidth, v,
+        u, v+spriteHeight,
+        u+spriteWidth, v+spriteHeight
     };
-    float aspect = width / height;
-    float vertices[] = {
+    //float aspect = spriteWidth / spriteHeight;
+    /*float vertices[] = {
         -0.5f * size * aspect, -0.5f * size,
         0.5f * size * aspect, 0.5f * size,
         -0.5f * size * aspect, 0.5f * size,
         0.5f * size * aspect, 0.5f * size,
         -0.5f * size * aspect, -0.5f * size ,
         0.5f * size * aspect, -0.5f * size};
+     */
     glUseProgram(program->programID);
     glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices);
     glEnableVertexAttribArray(program->positionAttribute);

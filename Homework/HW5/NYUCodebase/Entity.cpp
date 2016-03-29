@@ -7,26 +7,49 @@
 
 #include "Entity.h"
 
-float lerp(float v0, float v1, float t) {
+void SheetSprite::Draw(float vertices[]) {
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    GLfloat texCoords[] = {
+        u, v+spriteHeight,
+        u+spriteWidth, v,
+        u, v,
+        u+spriteWidth, v,
+        u, v+spriteHeight,
+        u+spriteWidth, v+spriteHeight
+    };
+    float aspect = spriteWidth / spriteHeight;
+    float vertices1[] = {
+        -0.5f * size * aspect, -0.5f * size,
+        0.5f * size * aspect, 0.5f * size,
+        -0.5f * size * aspect, 0.5f * size,
+        0.5f * size * aspect, 0.5f * size,
+        -0.5f * size * aspect, -0.5f * size ,
+        0.5f * size * aspect, -0.5f * size};
+    glUseProgram(program->programID);
+    glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices);
+    glEnableVertexAttribArray(program->positionAttribute);
+    glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords);
+    glEnableVertexAttribArray(program->texCoordAttribute);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(program->positionAttribute);
+    glDisableVertexAttribArray(program->texCoordAttribute);
+}
+
+float Entity::lerp(float v0, float v1, float t) {
     return (1.0-t)*v0 + t*v1;
 }
 
-void Entity::Render(ShaderProgram *program, GLuint& texture, float textureCoord[]) {
-    
-    
-    
-    float vertices[] = {x-width, y-height,x+width, y-height,x+width, y+height,
-        x-width, y-height,x+width, y+height,x-width, y+height};
-    Matrix modelMatrix;
-    
-    program->setModelMatrix(modelMatrix);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices);
-    glEnableVertexAttribArray(program->positionAttribute);
-    glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, textureCoord);
-    glEnableVertexAttribArray(program->texCoordAttribute);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    }
+void Entity::Render() {
+    float vertices[] = {
+        x-width, y-height,
+        x+width, y-height,
+        x+width, y+height,
+        x-width, y-height,
+        x+width, y+height,
+        x-width, y+height};
+    sprite->Draw(vertices);
+}
     
 bool Entity::collidesWith(Entity *other){
     if(y-height > other->y+other->height || y+height < other->y-other->height ||

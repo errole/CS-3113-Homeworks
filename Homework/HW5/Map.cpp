@@ -99,10 +99,12 @@ void Map::placeEntity(string type,float placeX,float &placeY, Entity &player){
 void Map::renderLevel(ShaderProgram &program, GLuint mapTexture, Matrix &modelMatrix){
     vector<float> vertexData;
     vector<float> texCoordData;
+    int count=0;
     
     for(int y=0; y < mapHeight; y++) {
         for(int x=0; x < mapWidth; x++) {
-            if(!(levelData[y][x]==0)){
+            if(levelData[y][x]!=0){
+                count++;
             float u = (float)(((int)levelData[y][x]) % SPRITE_COUNT_X) / (float) SPRITE_COUNT_X;
             float v = (float)(((int)levelData[y][x]) / SPRITE_COUNT_X) / (float) SPRITE_COUNT_Y;
             
@@ -135,7 +137,7 @@ void Map::renderLevel(ShaderProgram &program, GLuint mapTexture, Matrix &modelMa
     glVertexAttribPointer(program.texCoordAttribute, 2, GL_FLOAT, false, 0, texCoordData.data());
     glEnableVertexAttribArray(program.texCoordAttribute);
     glBindTexture(GL_TEXTURE_2D, mapTexture);
-    glDrawArrays(GL_TRIANGLES, 0, mapWidth*mapHeight * 6);
+    glDrawArrays(GL_TRIANGLES, 0, count * 6);
     glDisableVertexAttribArray(program.positionAttribute);
     glDisableVertexAttribArray(program.texCoordAttribute);
 }
