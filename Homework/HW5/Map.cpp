@@ -55,7 +55,7 @@ bool Map::readLayerData(std::ifstream &stream) {
                     if(val > 0) {
                         // be careful, the tiles in this format are indexed from 1 not 0
                         levelData[y][x] = val-1;
-                        cout << val;
+                        //cout << val;
                     } else {
                         levelData[y][x] = 0;
                     }
@@ -98,7 +98,6 @@ void Map::placeEntity(string type,float placeX,float &placeY, Entity &player){
 }
 
 void Map::renderLevel(ShaderProgram *program, GLuint mapTexture, Matrix &modelMatrix){
-    counter+=0.05;
     program->setModelMatrix(modelMatrix);
     modelMatrix.identity();
     modelMatrix.Translate(-1, 5.0, 0);
@@ -112,7 +111,7 @@ void Map::renderLevel(ShaderProgram *program, GLuint mapTexture, Matrix &modelMa
             
             float spriteWidth= 1.0f/(float)SPRITE_COUNT_X;
             float spriteHeight = 1.0f/(float)SPRITE_COUNT_Y;
-            
+            //cout << " "<<u<<" "<<v<<"/n";
             vertexData.insert(vertexData.end(), {
                 TILE_SIZE * x, -TILE_SIZE * y,
                 TILE_SIZE * x, (-TILE_SIZE * y)-TILE_SIZE,
@@ -121,6 +120,7 @@ void Map::renderLevel(ShaderProgram *program, GLuint mapTexture, Matrix &modelMa
                 (TILE_SIZE * x)+TILE_SIZE, (-TILE_SIZE * y)-TILE_SIZE,
                 (TILE_SIZE * x)+TILE_SIZE, -TILE_SIZE * y
             });
+                
             texCoordData.insert(texCoordData.end(), {
                 u, v,
                 u, v+(spriteHeight),
@@ -129,6 +129,7 @@ void Map::renderLevel(ShaderProgram *program, GLuint mapTexture, Matrix &modelMa
                 u+spriteWidth, v+(spriteHeight),
                 u+spriteWidth, v
             });
+                
             }
         }
     }
@@ -156,7 +157,7 @@ bool Map::bottomCollision(Entity *player){
     int gridX;
     int gridY;
     worldToTileCoordinates(player->x, (player->y-(player->sprite->size/2)), &gridX, &gridY);
-    cout << "\n" << gridX << " " << gridY << (unsigned char)levelData[gridX][gridY];
+    //cout << "\n" << gridX << " " << gridY << (unsigned char)levelData[gridX][gridY];
     if(levelData[gridY][gridX]== (unsigned char)('\230')){
         return true;
     }else{

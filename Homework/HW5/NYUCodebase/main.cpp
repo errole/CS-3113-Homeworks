@@ -45,7 +45,7 @@ Entity player(.5,-5.2,1,1);
 int gridX;
 int gridY;
 
-void Setup(){
+void Setup(ShaderProgram &program){
     string levelFile = "/Users/errolelbasan/Documents/Codes/CS3113/CS3113-Homework/Homework/HW5/PlatformerMap.txt";
     ifstream infile(levelFile);
     string line;
@@ -60,16 +60,26 @@ void Setup(){
             level.readEntityData(infile, player);
         }
     }
+    /*
+    mapTexture = LoadTexture("mapTexture.png");
+    SheetSprite mySprite(program, mapTexture, 30, 30, 20, .3);
+    player.sprite = &mySprite;
+     */
 }
 
 void RenderGameLevel(ShaderProgram &program){
     level.renderLevel(&program, mapTexture, modelMatrix);
     player.sprite->DrawPlayer(modelMatrix, player);
+    //Scrolling
+    viewMatrix.identity();
+    viewMatrix.Translate(-player.x, -player.y, 0);
+    program.setViewMatrix(viewMatrix);
 }
 
 void UpdateGameLevel(ShaderProgram &program){
     player.collidedBottom = false;
     player.collidedBottom = level.bottomCollision(&player);
+    
     if (player.collidedBottom == false) {
         player.acceleration_y = 0;
         player.acceleration_y += -2.81;
@@ -91,7 +101,8 @@ void UpdateGameLevel(ShaderProgram &program){
             player.collidedBottom = false;
         }
     }
-    else if(keys[SDL_SCANCODE_RIGHT]) {
+     
+    if(keys[SDL_SCANCODE_RIGHT]) {
         player.collidedRight = false;
         player.collidedRight = level.RightCollision(&player);
         if(player.collidedRight == false){
@@ -141,20 +152,19 @@ int main(int argc, char *argv[])
     
     SDL_Event event;
     bool done = false;
-    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
+
     program = new ShaderProgram(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
     program->setModelMatrix(modelMatrix);
     program->setProjectionMatrix(projectionMatrix);
     program->setViewMatrix(viewMatrix);
     projectionMatrix.setOrthoProjection(-5.55, 5.55, -3.0f, 3.0f, -1.0f, 1.0f);
     
-    Setup();
+    Setup(*program);
     
     mapTexture = LoadTexture("mapTexture.png");
-    SheetSprite mySprite(program, mapTexture, 30, 30, 20, .3);
+    SheetSprite mySprite(program, mapTexture, 30, 30, 630, .3);
     player.sprite = &mySprite;
 
     while (!done) {
@@ -177,16 +187,11 @@ int main(int argc, char *argv[])
             fixedElapsed -= FIXED_TIMESTEP;
         }
         
-        glClearColor(0.4f, 0.2f, 0.4f, 0.1f);
+        glClearColor(0.53f, 0.808f, 0.98f, 0.1f);
         glClear(GL_COLOR_BUFFER_BIT);
         
         UpdateGameLevel(*program);
         RenderGameLevel(*program);
-        
-        //Scrolling
-        viewMatrix.identity();
-        viewMatrix.Translate(-player.x, -player.y, 0);
-        program->setViewMatrix(viewMatrix);
         
         SDL_GL_SwapWindow(displayWindow);
         

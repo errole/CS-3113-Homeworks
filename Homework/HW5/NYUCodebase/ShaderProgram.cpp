@@ -7,7 +7,6 @@ ShaderProgram::ShaderProgram(const char *vertexShaderFile, const char *fragmentS
     vertexShader = loadShaderFromFile(vertexShaderFile, GL_VERTEX_SHADER);
     // create the fragment shader
     fragmentShader = loadShaderFromFile(fragmentShaderFile, GL_FRAGMENT_SHADER);
-    
     // Create the final shader program from our vertex and fragment shaders
     programID = glCreateProgram();
     glAttachShader(programID, vertexShader);

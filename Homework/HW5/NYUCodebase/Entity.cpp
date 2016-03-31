@@ -13,6 +13,7 @@ void SheetSprite::DrawPlayer(Matrix &modelMatrix, Entity &player) {
     modelMatrix.Translate(player.x, player.y, 0);
     u = (float)(((int)index) % spriteCountX) / (float) spriteCountX;
     v = (float)(((int)index) / spriteCountX) / (float) spriteCountY;
+
     spriteWidth = 1.0/(float)spriteCountX;
     spriteHeight = 1.0/(float)spriteCountY;
     GLfloat texCoords[] = {

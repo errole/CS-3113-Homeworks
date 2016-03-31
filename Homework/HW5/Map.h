@@ -37,13 +37,6 @@ public:
     int SPRITE_COUNT_Y = 30;
     vector<float> vertexData;
     vector<float> texCoordData;
-
-    
-    // DEBUG
-    
-    float counter = 0.05;
-    // DEBUG
-    
     
     bool readHeader(std::ifstream &stream);
     bool readLayerData(std::ifstream &stream);
