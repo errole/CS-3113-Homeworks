@@ -19,7 +19,6 @@ class Entity;
 
 class SheetSprite {
 public:
-    SheetSprite();
     SheetSprite(ShaderProgram* program, unsigned int textureID, int spriteCountX, int spriteCountY, int index, float size): program(program), textureID(textureID), spriteCountX(spriteCountX), spriteCountY(spriteCountY), index(index), size(size){};
     void DrawPlayer(Matrix &modelMatrix, Entity &player);
     float size;
@@ -61,8 +60,8 @@ public:
     float acceleration_x = 0;
     float acceleration_y = 0;
     
-    float friction_x=3;
-    float friction_y=3;
+    float friction_x=2;
+    float friction_y=2;
     
     float gravity_x=0;
     float gravity_y=0;

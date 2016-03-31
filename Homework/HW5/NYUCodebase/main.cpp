@@ -41,7 +41,7 @@ Matrix viewMatrix;
 Map level;
 vector<Entity> mapEntities;
 vector<Entity> enemies;
-Entity player(.5,-5.5,1,1);
+Entity player(.5,-5.2,1,1);
 int gridX;
 int gridY;
 
@@ -61,53 +61,12 @@ void Setup(){
         }
     }
 }
-/*
-void ProcessEvents(ShaderProgram program){
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
-            done = true;
-        }else if(event.type == SDL_KEYDOWN) {
-        }
-    }
-}
-void RenderGameLevel(ShaderProgram program){
-    
-    glClear(GL_COLOR_BUFFER_BIT);
-    viewMatrix.identity();
-    viewMatrix.Translate(-player.x, -player.y, 0);
-    //program.setViewMatrix(viewMatrix);
-    levelData.renderLevel(program, mapTexture, modelMatrix);
-    player.Render();
-    SDL_GL_SwapWindow(displayWindow);
-}
-*/
 
-/*
-bool topCollision(){
-    level.worldToTileCoordinates(player.x, player.y, &gridX, &gridX);
-    if()){
-        return true;
-    }else{
-        return false;
-    }
+void RenderGameLevel(ShaderProgram &program){
+    level.renderLevel(&program, mapTexture, modelMatrix);
+    player.sprite->DrawPlayer(modelMatrix, player);
 }
-bool rightCollision(){
-    level.worldToTileCoordinates(player.x, player.y, &gridX, &gridX);
-    if(){
-        return true;
-    }else{
-        return false;
-    }
-}
-bool leftCollision(){
-    level.worldToTileCoordinates(player.x, player.y, &gridX, &gridX);
-    if(){
-        return true;
-    }else{
-        return false;
-    }
-}
-*/
+
 void UpdateGameLevel(ShaderProgram &program){
     player.collidedBottom = false;
     player.collidedBottom = level.bottomCollision(&player);
@@ -118,8 +77,8 @@ void UpdateGameLevel(ShaderProgram &program){
         player.velocity_y += player.acceleration_y * FIXED_TIMESTEP;
         player.y += player.velocity_y * FIXED_TIMESTEP;
     }else{
-        float val = (player.y-(player.sprite->size/2)+(level.TILE_SIZE*(gridY+1))/2-.00000001);
-        player.y=val;
+        level.worldToTileCoordinates(player.x, player.y, &gridX, &gridY);
+        player.y += ((-level.TILE_SIZE*(gridY))-player.y-(player.sprite->size/2)+.00000001);
         player.collidedBottom = true;
     }
     if(keys[SDL_SCANCODE_SPACE]){
@@ -135,7 +94,7 @@ void UpdateGameLevel(ShaderProgram &program){
     else if(keys[SDL_SCANCODE_RIGHT]) {
         player.collidedRight = false;
         player.collidedRight = level.RightCollision(&player);
-        if(player.collidedRight==false){
+        if(player.collidedRight == false){
             player.acceleration_x = 0.9;
             player.velocity_x = player.lerp(player.velocity_x, 0.0f, FIXED_TIMESTEP * player.friction_x);
             player.velocity_x += player.acceleration_x * FIXED_TIMESTEP;
@@ -144,6 +103,9 @@ void UpdateGameLevel(ShaderProgram &program){
             player.x += 0;
             player.acceleration_x = 0;
             player.velocity_x = 0;
+            level.worldToTileCoordinates(player.x, player.y, &gridX, &gridY);
+            player.x -= ((player.x+(player.sprite->size/2))-(level.TILE_SIZE*(gridX+1))+.00000001);
+            player.collidedBottom = true;
         }
     }
     
@@ -159,6 +121,9 @@ void UpdateGameLevel(ShaderProgram &program){
             player.x += 0;
             player.acceleration_x = 0;
             player.velocity_x = 0;
+            level.worldToTileCoordinates(player.x, player.y, &gridX, &gridY);
+            player.x += ((level.TILE_SIZE*(gridX))-(player.x-(player.sprite->size/2))+.00000001);
+            player.collidedBottom = true;
         }
     }
 }
@@ -193,6 +158,7 @@ int main(int argc, char *argv[])
     player.sprite = &mySprite;
 
     while (!done) {
+        
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
                 done = true;
@@ -200,25 +166,9 @@ int main(int argc, char *argv[])
             }
         }
         
-        glClearColor(0.4f, 0.2f, 0.4f, 0.1f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        UpdateGameLevel(*program);
-        level.renderLevel(program, mapTexture, modelMatrix);
-        mySprite.DrawPlayer(modelMatrix, player);
-        
-        viewMatrix.identity();
-        viewMatrix.Translate(-player.x, -player.y, 0);
-        program->setViewMatrix(viewMatrix);
-        
-        SDL_GL_SwapWindow(displayWindow);
-        
-        /*
-        ProcessEvents(program);
-        
         float ticks = (float)SDL_GetTicks()/1000.0f;
         float elapsed = ticks - lastFrameTicks;
         lastFrameTicks = ticks;
-        
         float fixedElapsed = elapsed;
         if(fixedElapsed > FIXED_TIMESTEP * MAX_TIMESTEPS) {
             fixedElapsed = FIXED_TIMESTEP * MAX_TIMESTEPS;
@@ -227,10 +177,19 @@ int main(int argc, char *argv[])
             fixedElapsed -= FIXED_TIMESTEP;
         }
         
-        //UpdateGameLevel(program);
-        player.Render();
-        RenderGameLevel(program);
-        */
+        glClearColor(0.4f, 0.2f, 0.4f, 0.1f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        UpdateGameLevel(*program);
+        RenderGameLevel(*program);
+        
+        //Scrolling
+        viewMatrix.identity();
+        viewMatrix.Translate(-player.x, -player.y, 0);
+        program->setViewMatrix(viewMatrix);
+        
+        SDL_GL_SwapWindow(displayWindow);
+        
     }
     
     SDL_Quit();
