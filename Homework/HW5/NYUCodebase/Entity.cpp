@@ -7,8 +7,14 @@
 
 #include "Entity.h"
 
-void SheetSprite::Draw(float vertices[]) {
-    glBindTexture(GL_TEXTURE_2D, textureID);
+void SheetSprite::DrawPlayer(Matrix &modelMatrix, Entity &player) {
+    program->setModelMatrix(modelMatrix);
+    modelMatrix.identity();
+    modelMatrix.Translate(player.x, player.y, 0);
+    u = (float)(((int)index) % spriteCountX) / (float) spriteCountX;
+    v = (float)(((int)index) / spriteCountX) / (float) spriteCountY;
+    spriteWidth = 1.0/(float)spriteCountX;
+    spriteHeight = 1.0/(float)spriteCountY;
     GLfloat texCoords[] = {
         u, v+spriteHeight,
         u+spriteWidth, v,
@@ -17,19 +23,30 @@ void SheetSprite::Draw(float vertices[]) {
         u, v+spriteHeight,
         u+spriteWidth, v+spriteHeight
     };
-    float aspect = spriteWidth / spriteHeight;
-    float vertices1[] = {
+    float aspect = player.width / player.height;
+    float vertices[] = {
         -0.5f * size * aspect, -0.5f * size,
         0.5f * size * aspect, 0.5f * size,
         -0.5f * size * aspect, 0.5f * size,
         0.5f * size * aspect, 0.5f * size,
-        -0.5f * size * aspect, -0.5f * size ,
+        -0.5f * size * aspect, -0.5f * size,
         0.5f * size * aspect, -0.5f * size};
+    /*
+    float vertices1[] = {
+        -0.4f * 0.3f, -0.4f * 0.3f,
+        0.4f * 0.3f, 0.4f * 0.3f,
+        -0.4f * 0.3f, 0.4f * 0.3f,
+        0.4f * 0.3f, 0.4f * 0.3f,
+        -0.4f * 0.3f, -0.4f * 0.3f ,
+        0.4f * 0.3f, -0.4f * 0.3f};
+    */
     glUseProgram(program->programID);
     glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertices);
     glEnableVertexAttribArray(program->positionAttribute);
     glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords);
     glEnableVertexAttribArray(program->texCoordAttribute);
+    program->setModelMatrix(modelMatrix);
+    modelMatrix.identity();
     glBindTexture(GL_TEXTURE_2D, textureID);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glDisableVertexAttribArray(program->positionAttribute);
@@ -40,6 +57,7 @@ float Entity::lerp(float v0, float v1, float t) {
     return (1.0-t)*v0 + t*v1;
 }
 
+/*
 void Entity::Render() {
     float vertices[] = {
         x-width, y-height,
@@ -50,7 +68,7 @@ void Entity::Render() {
         x-width, y+height};
     sprite->Draw(vertices);
 }
-    
+ */   
 bool Entity::collidesWith(Entity *other){
     if(y-height > other->y+other->height || y+height < other->y-other->height ||
         x-width > other->x+other->width || x+width < other->x-other->width){

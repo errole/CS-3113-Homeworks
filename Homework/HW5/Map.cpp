@@ -55,6 +55,7 @@ bool Map::readLayerData(std::ifstream &stream) {
                     if(val > 0) {
                         // be careful, the tiles in this format are indexed from 1 not 0
                         levelData[y][x] = val-1;
+                        cout << val;
                     } else {
                         levelData[y][x] = 0;
                     }
@@ -96,15 +97,16 @@ void Map::placeEntity(string type,float placeX,float &placeY, Entity &player){
     }
 }
 
-void Map::renderLevel(ShaderProgram &program, GLuint mapTexture, Matrix &modelMatrix){
-    vector<float> vertexData;
-    vector<float> texCoordData;
-    int count=0;
+void Map::renderLevel(ShaderProgram *program, GLuint mapTexture, Matrix &modelMatrix){
+    counter+=0.05;
+    program->setModelMatrix(modelMatrix);
+    modelMatrix.identity();
+    modelMatrix.Translate(-1, 5.0, 0);
     
     for(int y=0; y < mapHeight; y++) {
         for(int x=0; x < mapWidth; x++) {
             if(levelData[y][x]!=0){
-                count++;
+
             float u = (float)(((int)levelData[y][x]) % SPRITE_COUNT_X) / (float) SPRITE_COUNT_X;
             float v = (float)(((int)levelData[y][x]) / SPRITE_COUNT_X) / (float) SPRITE_COUNT_Y;
             
@@ -131,20 +133,54 @@ void Map::renderLevel(ShaderProgram &program, GLuint mapTexture, Matrix &modelMa
         }
     }
     
-    glUseProgram(program.programID);
-    glVertexAttribPointer(program.positionAttribute, 2, GL_FLOAT, false, 0, vertexData.data());
-    glEnableVertexAttribArray(program.positionAttribute);
-    glVertexAttribPointer(program.texCoordAttribute, 2, GL_FLOAT, false, 0, texCoordData.data());
-    glEnableVertexAttribArray(program.texCoordAttribute);
+    glVertexAttribPointer(program->positionAttribute, 2, GL_FLOAT, false, 0, vertexData.data());
+    glEnableVertexAttribArray(program->positionAttribute);
+    glVertexAttribPointer(program->texCoordAttribute, 2, GL_FLOAT, false, 0, texCoordData.data());
+    glEnableVertexAttribArray(program->texCoordAttribute);
     glBindTexture(GL_TEXTURE_2D, mapTexture);
-    glDrawArrays(GL_TRIANGLES, 0, count * 6);
-    glDisableVertexAttribArray(program.positionAttribute);
-    glDisableVertexAttribArray(program.texCoordAttribute);
+    glDrawArrays(GL_TRIANGLES, 0, vertexData.size()/2);
+    glDisableVertexAttribArray(program->positionAttribute);
+    glDisableVertexAttribArray(program->texCoordAttribute);
 }
 
 void Map::worldToTileCoordinates(float worldX, float worldY, int *gridX, int *gridY) {
     *gridX = (int)(worldX / TILE_SIZE);
     *gridY = (int)(-worldY / TILE_SIZE);
 }
+void Map::tileToWorldCoordinates(int gridX, int gridY, float *worldX, float *worldY) {
+    *worldX = (float)(gridX * TILE_SIZE);
+    *worldY = (float)(-gridY * TILE_SIZE);
+}
 
+bool Map::bottomCollision(Entity *player){
+    int gridX;
+    int gridY;
+    worldToTileCoordinates(player->x, (player->y-(player->sprite->size/2)), &gridX, &gridY);
+    cout << "\n" << gridX << " " << gridY << (unsigned char)levelData[gridX][gridY];
+    if(levelData[gridY][gridX]== (unsigned char)('\230')){
+        return true;
+    }else{
+        return false;
+    }
+}
+bool Map::RightCollision(Entity *player){
+    int gridX;
+    int gridY;
+    worldToTileCoordinates(player->x+(player->sprite->size/2), player->y, &gridX, &gridY);
+    if(levelData[gridY][gridX]== (unsigned char)('\230')){
+        return true;
+    }else{
+        return false;
+    }
+}
+bool Map::LeftCollision(Entity *player){
+    int gridX;
+    int gridY;
+    worldToTileCoordinates(player->x-(player->sprite->size/2), player->y, &gridX, &gridY);
+    if(levelData[gridY][gridX]== (unsigned char)('\230')){
+        return true;
+    }else{
+        return false;
+    }
+}
 

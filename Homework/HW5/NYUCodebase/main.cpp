@@ -1,7 +1,6 @@
 #ifdef _WINDOWS
 #include <GL/glew.h>
 #endif
-
 #include <stdlib.h>
 #include <vector>
 #include <SDL.h>
@@ -14,72 +13,55 @@
 #include "Utilities.h"
 #include "Map.h"
 using namespace std;
-
 #ifdef _WINDOWS
 #define RESOURCE_FOLDER ""
 #else
 #define RESOURCE_FOLDER "NYUCodebase.app/Contents/Resources/"
 #endif
-
 // 60 FPS (1.0f/60.0f)
 #define FIXED_TIMESTEP 0.0166666f
 #define MAX_TIMESTEPS 6
-
 //Global Setup Parameters
 SDL_Window* displayWindow;
-SDL_Event event;
+unsigned char** levelData;
 const Uint8 *keys = SDL_GetKeyboardState(NULL);
-bool done = false;
-float lastFrameTicks = 0.0f;
-float elapsed = 0.0;
+ShaderProgram* program;
 GLuint mapTexture=0;
+//Game States
 enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_WIN, STATE_LOSE};
 int state = STATE_MAIN_MENU;
-
+//Timer
+float lastFrameTicks = 0.0f;
+float elapsed = 0.0;
 //Matrices
 Matrix projectionMatrix;
 Matrix modelMatrix;
 Matrix viewMatrix;
-
-//Entity Data
-Map levelData;
+//Entity & Map Data
+Map level;
 vector<Entity> mapEntities;
 vector<Entity> enemies;
-Entity player(100,-350,10,10);
-
+Entity player(.5,-5.5,1,1);
+int gridX;
+int gridY;
 
 void Setup(){
-    SDL_Init(SDL_INIT_VIDEO);
-    displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
-    SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
-    SDL_GL_MakeCurrent(displayWindow, context);
-#ifdef _WINDOWS
-    glewInit();
-#endif
-    
-    glViewport(0, 0, 640, 360);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glBlendFunc (GL_SRC_ALPHA, GL_ONE);
-    glClearColor(.0f,.0f,.3f,.0f);
-    projectionMatrix.setOrthoProjection(-5.55, 5.55, -3.0f, 3.0f, -1.0f, 1.0f);
     string levelFile = "/Users/errolelbasan/Documents/Codes/CS3113/CS3113-Homework/Homework/HW5/PlatformerMap.txt";
     ifstream infile(levelFile);
     string line;
-    
     while (getline(infile, line)) {
         if(line == "[header]") {
-            levelData.readHeader(infile);
-        } else if(line == "[layer]") {
-            levelData.readLayerData(infile);
-        } else if(line == "[ObjectsLayer]") {
-            levelData.readEntityData(infile, player);
+            level.readHeader(infile);
+        }
+        else if(line == "[layer]") {
+            level.readLayerData(infile);
+        }
+        else if(line == "[ObjectsLayer]") {
+            level.readEntityData(infile, player);
         }
     }
-    viewMatrix.Scale(.01,.01,0);
-    viewMatrix.Translate(-300,200,0);
 }
-
+/*
 void ProcessEvents(ShaderProgram program){
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
@@ -88,34 +70,8 @@ void ProcessEvents(ShaderProgram program){
         }
     }
 }
-
-void UpdateGameLevel(ShaderProgram program){
-    player.collidedBottom = false;
-    if(keys[SDL_SCANCODE_SPACE]){
-        player.acceleration_y = 1.5;
-        player.velocity_y = 2.2;
-        player.velocity_y += player.lerp(player.velocity_y, 0.0f, FIXED_TIMESTEP * player.friction_y);
-        player.velocity_y += player.acceleration_y * FIXED_TIMESTEP;
-        player.y += player.velocity_y * FIXED_TIMESTEP;
-        player.collidedBottom = false;
-    }
-    player.collidedRight = false;
-    if(keys[SDL_SCANCODE_RIGHT]) {
-        player.acceleration_x = 0.9;
-        player.velocity_x = player.lerp(player.velocity_x, 0.0f, FIXED_TIMESTEP * player.friction_x);
-        player.velocity_x += player.acceleration_x * FIXED_TIMESTEP;
-        player.x += player.velocity_x * FIXED_TIMESTEP;
-    }
-    player.collidedLeft = false;
-    if(keys[SDL_SCANCODE_LEFT]){
-        player.acceleration_x = -0.9;
-        player.velocity_x = player.lerp(player.velocity_x, 0.0f, FIXED_TIMESTEP * player.friction_x);
-        player.velocity_x += player.acceleration_x * FIXED_TIMESTEP;
-        player.x += player.velocity_x * FIXED_TIMESTEP;
-    }
-}
-
 void RenderGameLevel(ShaderProgram program){
+    
     glClear(GL_COLOR_BUFFER_BIT);
     viewMatrix.identity();
     viewMatrix.Translate(-player.x, -player.y, 0);
@@ -124,22 +80,139 @@ void RenderGameLevel(ShaderProgram program){
     player.Render();
     SDL_GL_SwapWindow(displayWindow);
 }
+*/
+
+/*
+bool topCollision(){
+    level.worldToTileCoordinates(player.x, player.y, &gridX, &gridX);
+    if()){
+        return true;
+    }else{
+        return false;
+    }
+}
+bool rightCollision(){
+    level.worldToTileCoordinates(player.x, player.y, &gridX, &gridX);
+    if(){
+        return true;
+    }else{
+        return false;
+    }
+}
+bool leftCollision(){
+    level.worldToTileCoordinates(player.x, player.y, &gridX, &gridX);
+    if(){
+        return true;
+    }else{
+        return false;
+    }
+}
+*/
+void UpdateGameLevel(ShaderProgram &program){
+    player.collidedBottom = false;
+    player.collidedBottom = level.bottomCollision(&player);
+    if (player.collidedBottom == false) {
+        player.acceleration_y = 0;
+        player.acceleration_y += -2.81;
+        player.velocity_y = player.lerp(player.velocity_y, 0.0f, FIXED_TIMESTEP * player.friction_y);
+        player.velocity_y += player.acceleration_y * FIXED_TIMESTEP;
+        player.y += player.velocity_y * FIXED_TIMESTEP;
+    }else{
+        float val = (player.y-(player.sprite->size/2)+(level.TILE_SIZE*(gridY+1))/2-.00000001);
+        player.y=val;
+        player.collidedBottom = true;
+    }
+    if(keys[SDL_SCANCODE_SPACE]){
+        if(player.collidedBottom == true){
+            player.acceleration_y = 1.5;
+            player.velocity_y = 2.2;
+            player.velocity_y += player.lerp(player.velocity_y, 0.0f, FIXED_TIMESTEP * player.friction_y);
+            player.velocity_y += player.acceleration_y * FIXED_TIMESTEP;
+            player.y += player.velocity_y * FIXED_TIMESTEP;
+            player.collidedBottom = false;
+        }
+    }
+    else if(keys[SDL_SCANCODE_RIGHT]) {
+        player.collidedRight = false;
+        player.collidedRight = level.RightCollision(&player);
+        if(player.collidedRight==false){
+            player.acceleration_x = 0.9;
+            player.velocity_x = player.lerp(player.velocity_x, 0.0f, FIXED_TIMESTEP * player.friction_x);
+            player.velocity_x += player.acceleration_x * FIXED_TIMESTEP;
+            player.x += player.velocity_x * FIXED_TIMESTEP;
+        }else{
+            player.x += 0;
+            player.acceleration_x = 0;
+            player.velocity_x = 0;
+        }
+    }
+    
+    else if(keys[SDL_SCANCODE_LEFT]){
+        player.collidedLeft = false;
+        player.collidedLeft = level.LeftCollision(&player);
+        if (player.collidedLeft == false) {
+            player.acceleration_x = -0.9;
+            player.velocity_x = player.lerp(player.velocity_x, 0.0f, FIXED_TIMESTEP * player.friction_x);
+            player.velocity_x += player.acceleration_x * FIXED_TIMESTEP;
+            player.x += player.velocity_x * FIXED_TIMESTEP;
+        }else{
+            player.x += 0;
+            player.acceleration_x = 0;
+            player.velocity_x = 0;
+        }
+    }
+}
 
 int main(int argc, char *argv[])
 {
-    Setup();
-    mapTexture = LoadTexture("mapTexture.png");
-    ShaderProgram program(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
-    glUseProgram(program.programID);
-    program.setModelMatrix(modelMatrix);
-    program.setProjectionMatrix(projectionMatrix);
-    program.setViewMatrix(viewMatrix);
+    SDL_Init(SDL_INIT_VIDEO);
+    displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
+    SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
+    SDL_GL_MakeCurrent(displayWindow, context);
+#ifdef _WINDOWS
+    glewInit();
+#endif
+    glViewport(0, 0, 640, 360);
+    
+    SDL_Event event;
+    bool done = false;
+    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    SheetSprite mySprite(&program, mapTexture,30,30,20, 10);
-    player.sprite= &mySprite;
     
+    program = new ShaderProgram(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
+    program->setModelMatrix(modelMatrix);
+    program->setProjectionMatrix(projectionMatrix);
+    program->setViewMatrix(viewMatrix);
+    projectionMatrix.setOrthoProjection(-5.55, 5.55, -3.0f, 3.0f, -1.0f, 1.0f);
+    
+    Setup();
+    
+    mapTexture = LoadTexture("mapTexture.png");
+    SheetSprite mySprite(program, mapTexture, 30, 30, 20, .3);
+    player.sprite = &mySprite;
+
     while (!done) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
+                done = true;
+            }else if(event.type == SDL_KEYDOWN) {
+            }
+        }
+        
+        glClearColor(0.4f, 0.2f, 0.4f, 0.1f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        UpdateGameLevel(*program);
+        level.renderLevel(program, mapTexture, modelMatrix);
+        mySprite.DrawPlayer(modelMatrix, player);
+        
+        viewMatrix.identity();
+        viewMatrix.Translate(-player.x, -player.y, 0);
+        program->setViewMatrix(viewMatrix);
+        
+        SDL_GL_SwapWindow(displayWindow);
+        
+        /*
         ProcessEvents(program);
         
         float ticks = (float)SDL_GetTicks()/1000.0f;
@@ -154,9 +227,10 @@ int main(int argc, char *argv[])
             fixedElapsed -= FIXED_TIMESTEP;
         }
         
-        UpdateGameLevel(program);
+        //UpdateGameLevel(program);
         player.Render();
         RenderGameLevel(program);
+        */
     }
     
     SDL_Quit();
