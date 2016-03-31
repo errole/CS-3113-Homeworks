@@ -46,6 +46,7 @@ int gridX;
 int gridY;
 
 void Setup(ShaderProgram &program){
+    //Load Map File
     string levelFile = "/Users/errolelbasan/Documents/Codes/CS3113/CS3113-Homework/Homework/HW5/PlatformerMap.txt";
     ifstream infile(levelFile);
     string line;
@@ -68,6 +69,7 @@ void Setup(ShaderProgram &program){
 }
 
 void RenderGameLevel(ShaderProgram &program){
+    //Rendering
     level.renderLevel(&program, mapTexture, modelMatrix);
     player.sprite->DrawPlayer(modelMatrix, player);
     //Scrolling
@@ -81,8 +83,8 @@ void UpdateGameLevel(ShaderProgram &program){
     player.collidedBottom = level.bottomCollision(&player);
     
     if (player.collidedBottom == false) {
-        player.acceleration_y = 0;
-        player.acceleration_y += -2.81;
+        player.velocity_y = 2.2;
+        player.acceleration_y += -4.81;
         player.velocity_y = player.lerp(player.velocity_y, 0.0f, FIXED_TIMESTEP * player.friction_y);
         player.velocity_y += player.acceleration_y * FIXED_TIMESTEP;
         player.y += player.velocity_y * FIXED_TIMESTEP;
@@ -93,7 +95,7 @@ void UpdateGameLevel(ShaderProgram &program){
     }
     if(keys[SDL_SCANCODE_SPACE]){
         if(player.collidedBottom == true){
-            player.acceleration_y = 1.5;
+            player.acceleration_y = 4.81;
             player.velocity_y = 2.2;
             player.velocity_y += player.lerp(player.velocity_y, 0.0f, FIXED_TIMESTEP * player.friction_y);
             player.velocity_y += player.acceleration_y * FIXED_TIMESTEP;
@@ -101,12 +103,12 @@ void UpdateGameLevel(ShaderProgram &program){
             player.collidedBottom = false;
         }
     }
-     
+    
     if(keys[SDL_SCANCODE_RIGHT]) {
         player.collidedRight = false;
         player.collidedRight = level.RightCollision(&player);
         if(player.collidedRight == false){
-            player.acceleration_x = 0.9;
+            player.acceleration_x = 1.2;
             player.velocity_x = player.lerp(player.velocity_x, 0.0f, FIXED_TIMESTEP * player.friction_x);
             player.velocity_x += player.acceleration_x * FIXED_TIMESTEP;
             player.x += player.velocity_x * FIXED_TIMESTEP;
@@ -124,7 +126,7 @@ void UpdateGameLevel(ShaderProgram &program){
         player.collidedLeft = false;
         player.collidedLeft = level.LeftCollision(&player);
         if (player.collidedLeft == false) {
-            player.acceleration_x = -0.9;
+            player.acceleration_x = -1.2;
             player.velocity_x = player.lerp(player.velocity_x, 0.0f, FIXED_TIMESTEP * player.friction_x);
             player.velocity_x += player.acceleration_x * FIXED_TIMESTEP;
             player.x += player.velocity_x * FIXED_TIMESTEP;
@@ -164,7 +166,7 @@ int main(int argc, char *argv[])
     Setup(*program);
     
     mapTexture = LoadTexture("mapTexture.png");
-    SheetSprite mySprite(program, mapTexture, 30, 30, 630, .3);
+    SheetSprite mySprite(program, mapTexture, 30, 30, 19, .3);
     player.sprite = &mySprite;
 
     while (!done) {
@@ -186,7 +188,7 @@ int main(int argc, char *argv[])
         while (fixedElapsed >= FIXED_TIMESTEP ) {
             fixedElapsed -= FIXED_TIMESTEP;
         }
-        
+        //Background color
         glClearColor(0.53f, 0.808f, 0.98f, 0.1f);
         glClear(GL_COLOR_BUFFER_BIT);
         

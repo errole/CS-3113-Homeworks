@@ -55,7 +55,7 @@ bool Map::readLayerData(std::ifstream &stream) {
                     if(val > 0) {
                         // be careful, the tiles in this format are indexed from 1 not 0
                         levelData[y][x] = val-1;
-                        //cout << val;
+                        //cout << " " << (int)val<<" ";
                     } else {
                         levelData[y][x] = 0;
                     }
@@ -157,31 +157,33 @@ bool Map::bottomCollision(Entity *player){
     int gridX;
     int gridY;
     worldToTileCoordinates(player->x, (player->y-(player->sprite->size/2)), &gridX, &gridY);
-    //cout << "\n" << gridX << " " << gridY << (unsigned char)levelData[gridX][gridY];
-    if(levelData[gridY][gridX]== (unsigned char)('\230')){
-        return true;
-    }else{
-        return false;
+    for(int i=0;i<solids.size();i++){
+        if((int)(levelData[gridY][gridX])==solids[i]){
+            return true;
+        }
     }
+    return false;
 }
 bool Map::RightCollision(Entity *player){
     int gridX;
     int gridY;
     worldToTileCoordinates(player->x+(player->sprite->size/2), player->y, &gridX, &gridY);
-    if(levelData[gridY][gridX]== (unsigned char)('\230')){
-        return true;
-    }else{
-        return false;
+    for(int i=0;i<solids.size();i++){
+        if((int)(levelData[gridY][gridX])==solids[i]){
+            return true;
+        }
     }
+    return false;
 }
 bool Map::LeftCollision(Entity *player){
     int gridX;
     int gridY;
     worldToTileCoordinates(player->x-(player->sprite->size/2), player->y, &gridX, &gridY);
-    if(levelData[gridY][gridX]== (unsigned char)('\230')){
-        return true;
-    }else{
-        return false;
+    for(int i=0;i<solids.size();i++){
+        if((int)(levelData[gridY][gridX])==solids[i]){
+            return true;
+        }
     }
+    return false;
 }
 

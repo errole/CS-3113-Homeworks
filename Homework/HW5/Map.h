@@ -37,6 +37,7 @@ public:
     int SPRITE_COUNT_Y = 30;
     vector<float> vertexData;
     vector<float> texCoordData;
+    vector<float> solids={152,123};
     
     bool readHeader(std::ifstream &stream);
     bool readLayerData(std::ifstream &stream);
