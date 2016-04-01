@@ -41,6 +41,7 @@ public:
     
     bool readHeader(std::ifstream &stream);
     bool readLayerData(std::ifstream &stream);
+    //Data from file is limited to an index number of 255
     bool readEntityData(std::ifstream &stream, Entity &player);
     void renderLevel(ShaderProgram *program, GLuint mapTexture, Matrix &modelMatrix);
     void worldToTileCoordinates(float worldX, float worldY, int *gridX, int *gridY);

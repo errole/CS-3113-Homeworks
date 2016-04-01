@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
     bool done = false;
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    
     program = new ShaderProgram(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
     program->setModelMatrix(modelMatrix);
     program->setProjectionMatrix(projectionMatrix);
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
     mapTexture = LoadTexture("mapTexture.png");
     SheetSprite mySprite(program, mapTexture, 30, 30, 19, .3);
     player.sprite = &mySprite;
-
+    
     while (!done) {
         
         while (SDL_PollEvent(&event)) {

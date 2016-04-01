@@ -51,6 +51,7 @@ bool Map::readLayerData(std::ifstream &stream) {
                 string tile;
                 for(int x=0; x < mapWidth; x++) {
                     getline(lineStream, tile, ',');
+                    //Data from file is limited to an index number of 255 (unsigned char)
                     unsigned char val =  (unsigned char)atoi(tile.c_str());
                     if(val > 0) {
                         // be careful, the tiles in this format are indexed from 1 not 0
@@ -101,6 +102,9 @@ void Map::renderLevel(ShaderProgram *program, GLuint mapTexture, Matrix &modelMa
     program->setModelMatrix(modelMatrix);
     modelMatrix.identity();
     modelMatrix.Translate(-1, 5.0, 0);
+    
+    vertexData.clear();
+    texCoordData.clear();
     
     for(int y=0; y < mapHeight; y++) {
         for(int x=0; x < mapWidth; x++) {
