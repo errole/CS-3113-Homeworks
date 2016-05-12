@@ -122,10 +122,10 @@ int main(int argc, char *argv[])
             float textureCoords2[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0,0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
             DrawSprite( program, explosionTexture, vertices2, textureCoords2, 0, 0, 0);
         }
-        variable += elapsed;
+        variable += elapsed*1;
         SDL_GL_SwapWindow(displayWindow);
     }
-    
+    //wefwefwefewf
     SDL_Quit();
     return 0;
 }

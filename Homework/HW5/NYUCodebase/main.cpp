@@ -47,7 +47,7 @@ int gridY;
 
 void Setup(ShaderProgram &program){
     //Load Map File
-    string levelFile = "/Users/errolelbasan/Documents/Codes/CS3113/CS3113-Homework/Homework/HW5/PlatformerMap.txt";
+    string levelFile = "/Users/errolelbasan/Documents/Codes/CS3113/Homework/HW5/PlatformerMap.txt";
     ifstream infile(levelFile);
     string line;
     while (getline(infile, line)) {
